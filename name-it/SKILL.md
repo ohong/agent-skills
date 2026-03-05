@@ -1,6 +1,6 @@
 ---
 name: name-it
-description: Generate compelling brand, product, or company names using a structured naming methodology. Use this skill whenever someone needs to name anything — a startup, app, product, feature, project, side hustle, newsletter, podcast, band, pet project, or creative endeavor. Trigger on phrases like "name my company," "what should I call," "brainstorm names," "I need a name for," "help me name," "naming ideas," or any request where the user is searching for the right word or phrase to represent something they're building. Also trigger when users are evaluating or comparing existing name candidates, or struggling with a naming decision.
+description: Generate compelling brand, product, or company names using a structured naming methodology. Use this skill whenever someone needs to name anything — a startup, app, product, feature, project, side hustle, newsletter, podcast, band, pet project, domain, open-source library, or creative endeavor. Trigger on phrases like "name my company," "what should I call," "brainstorm names," "I need a name for," "help me name," "naming ideas," or any request where the user is searching for the right word or phrase to represent something they're building. Also trigger when users are evaluating or comparing existing name candidates, struggling with a naming decision, asking "is this a good name," doing competitive naming analysis, or exploring domain availability strategy. Even if the user already has a name and wants feedback, use this skill — the evaluation framework applies. If the user mentions branding, identity, or positioning in the context of choosing a name, use this skill.
 ---
 
 # Name-It: Structured Naming in One Session
@@ -76,7 +76,7 @@ Goal: generate 50+ raw candidates (more is better — great names come from volu
 | Attitude/Edge | Bold stance or personality | Virgin, Liquid Death, Vice |
 | Special Wrongness | Unexpected pairing; 1+1=3 | Teenage Engineering, Impossible Foods, Browser Company of New York |
 
-Present candidates organized by type. Tag each with a brief rationale connecting it to the orientation.
+Present candidates organized by type, with 3-6 per category. Tag each with a one-sentence rationale connecting it to orientation answers.
 
 ---
 
@@ -102,6 +102,8 @@ Then score finalists on three axes:
 | **Range** | Can it grow with the company? Does it trap you in one category? |
 
 2 of 3 axes = viable. 3 of 3 = rare and magical. 0-1 of 3 = cut.
+
+If the user provides a name they're already considering, evaluate it through the same six dimensions and three axes before generating alternatives.
 
 **Reality checks before advancing:**
 - Legal scan: Quick USPTO/TMView search for identical marks in your class
@@ -136,7 +138,7 @@ Exit with **3–5 finalists** that passed each test.
 
 ### Phase 5: Commitment
 
-One person decides. Committees find the safe middle; you want memorable.
+One person decides. If helping an individual, this is straightforward. If helping a team, recommend they designate a final decision-maker before this phase. Committees find the safe middle; you want memorable.
 
 **Decision methods:**
 - Set each finalist as phone background for 3-4 days — constant low-pressure exposure reveals the winner
@@ -166,6 +168,8 @@ The name is 20% of the journey. The other 80% is consistent use, clear storytell
 
 ## Interaction Guidelines
 
+**Critical: Never generate names before completing at least a minimal Orientation (Phase 1).** Even if the user says "just give me names," ask 3 quick questions first: what it does, who it's for, and what feeling it should convey. This 60-second investment dramatically improves output quality. If the user resists, explain briefly why orientation matters, then adapt to their pace — but always ground in at least purpose + audience + feeling before generating.
+
 When helping a user name something:
 
 1. **Start with Orientation questions.** Don't generate names until you understand purpose, promise, audience, feeling, and constraints. Even a quick version of this transforms results.
@@ -174,6 +178,15 @@ When helping a user name something:
 4. **Present finalists as a comparison.** Show Memory/Meaning/Range scores. Note tradeoffs clearly.
 5. **Don't over-explain.** When presenting names, let them breathe. A name + one sentence of rationale is usually enough.
 6. **Match the user's pace.** Some want the full afternoon process. Some want 10 options in 2 minutes. Adapt, but always ground in orientation first — even 3 quick questions dramatically improve output.
+
+### Presentation Format
+
+When presenting name candidates:
+- Group by name type (from the palette in Phase 2) with 3-6 names per group
+- Format each as: **Name** — one sentence connecting it to orientation answers
+- Bold your top 3-5 picks across all groups and explain why they scored highest on the Memory/Meaning/Range axes
+- When presenting finalists (Phase 3+), use a comparison table with the three axes scored as ✓✓ (strong), ✓ (adequate), or — (weak)
+- Keep rationales tight. A name + one sentence is enough. Over-explaining kills the vibe.
 
 ### Useful Suffixes (for modification/domain strategy)
 
