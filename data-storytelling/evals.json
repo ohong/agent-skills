@@ -1,0 +1,73 @@
+{
+  "skill_name": "data-storytelling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a line chart showing YC startup funding trends from 2015-2024. The key insight is that early-stage rounds dropped 40% in 2023.",
+      "expected_output": "Should produce a D3+React responsive line chart with: title, subtitle stating the insight, direct labels, muted secondary data, accessible SVG structure, and prefers-reduced-motion support.",
+      "files": [],
+      "assertions": [
+        "Uses D3 for scales/math and React/JSX for SVG rendering (not d3.select().append())",
+        "Includes a subtitle that states the insight, not just the topic",
+        "Has aria-label with the actual insight on the SVG element",
+        "Includes role='img', <title>, and <desc> for accessibility",
+        "Uses useResizeObserver or ResizeObserver for responsive sizing",
+        "Wraps animations in prefers-reduced-motion check"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need a scrollytelling visualization that walks through how startup mortality rates change by industry sector.",
+      "expected_output": "Should produce a ScrollySection component using Scrollama with sticky chart, step-based text, and progressive revelation of data layers.",
+      "files": [],
+      "assertions": [
+        "Uses Scrollama for intersection-observer-based step detection",
+        "Chart container uses CSS position: sticky",
+        "Each scroll step changes ONE visual element",
+        "Follows narrative arc: setup, tension, resolution",
+        "Includes opacity transitions for active vs inactive steps",
+        "Chart is a 'use client' component"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a choropleth map showing startup density by US state.",
+      "expected_output": "Should use D3-geo with TopoJSON, sequential color scale, and full accessibility.",
+      "files": [],
+      "assertions": [
+        "Uses TopoJSON (not GeoJSON) for map data",
+        "Uses d3.geoAlbersUsa() projection for US maps",
+        "Color scale is sequential single-hue (not rainbow)",
+        "Includes hidden data table with sr-only class for screen readers",
+        "SVG has role='img' and aria-label with the insight",
+        "Uses viewBox for responsive sizing"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to show how founder backgrounds correlate with startup success. What chart should I use?",
+      "expected_output": "Should recommend a scatter plot as the default for correlation stories, with connected scatter as an upgrade if time dimension is relevant.",
+      "files": [],
+      "assertions": [
+        "Identifies the story type as 'Correlation'",
+        "Recommends scatter plot as default chart type",
+        "Mentions connected scatter plot as upgrade option for adding time dimension",
+        "Asks the user to state the single insight before writing code",
+        "Suggests fewer than 5 categorical hues if color-coding categories"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Generate an editorial illustration for a data story about AI replacing startup jobs using fal.ai.",
+      "expected_output": "Should use @fal-ai/client with FAL_API_KEY env var, FLUX Schnell model, and explicitly note this is for illustration not charts.",
+      "files": [],
+      "assertions": [
+        "Uses process.env.FAL_API_KEY (not FAL_KEY)",
+        "Uses fal-ai/flux/schnell or another supported model",
+        "Prompt specifies no text, no charts, no graphs in the image",
+        "Includes Cache-Control headers for caching the result",
+        "Makes clear that fal.ai is for editorial illustrations, never for chart generation"
+      ]
+    }
+  ]
+}
