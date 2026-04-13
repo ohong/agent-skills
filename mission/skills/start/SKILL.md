@@ -1,9 +1,10 @@
 ---
-name: mission:start
+name: start
 description: >-
   Begin executing an approved mission plan from milestone 1.
   Requires .mission/plan.md to exist. Runs milestones sequentially
   with validation gates between each. Use /mission:plan first.
+disable-model-invocation: true
 effort: high
 ---
 
@@ -27,7 +28,7 @@ You are beginning execution. Each milestone is its own OODA cycle: orient to the
 
 ## Execution: The Milestone OODA Loop
 
-Follow the execution protocol in [../references/execution-protocol.md](../references/execution-protocol.md) starting from **Milestone 1**.
+Follow the execution protocol in [../../references/execution-protocol.md](../../references/execution-protocol.md) starting from **Milestone 1**.
 
 Each milestone follows the OODA cycle:
 

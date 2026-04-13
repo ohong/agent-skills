@@ -1,8 +1,9 @@
 ---
-name: mission:status
+name: status
 description: >-
   Show current mission progress — milestones completed, current milestone,
   remaining work, and any blockers. Pure observation, no execution.
+disable-model-invocation: true
 ---
 
 # Mission Status — Observe

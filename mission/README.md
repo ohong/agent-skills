@@ -1,17 +1,42 @@
----
-name: mission
-description: >-
-  Run long-horizon, multi-hour coding tasks without context collapse.
-  Decomposes projects into milestones with validation gates,
-  fresh context per step, and file-based state that survives compaction.
-  Use when a task will take more than 30 minutes or spans multiple features.
-disable-model-invocation: true
-user-invocable: true
----
-
 # Mission Control
 
-A structured execution framework for long-horizon coding tasks, built on John Boyd's OODA loop.
+A Claude Code plugin for structured execution of long-horizon coding tasks, built on John Boyd's OODA loop.
+
+Mission decomposes projects into milestones with validation gates, fresh context per step, and file-based state that survives compaction. Use it when a task will take more than 30 minutes or spans multiple features.
+
+## Installation
+
+### From a local clone
+
+```bash
+git clone https://github.com/ohong/agent-skills.git
+claude --plugin-dir ./agent-skills/mission
+```
+
+Or test in a running session:
+
+```
+/plugin install --dir /path/to/agent-skills/mission
+```
+
+### From a marketplace (when published)
+
+```
+/plugin install mission@ohong/agent-skills
+```
+
+## Skills
+
+All skills are namespaced under `mission:` and invoked as slash commands.
+
+| Command | OODA Phase | Purpose |
+|---|---|---|
+| `/mission:plan <task>` | Orient | **Start here.** Research, decompose, approve, save the plan. |
+| `/mission:start` | Act | Begin execution from milestone 1. Requires an approved plan. |
+| `/mission:continue` | Re-orient | Resume with fresh context from last checkpoint. |
+| `/mission:status` | Observe | Show current progress. |
+| `/mission:pivot [reason]` | Destroy & Create | Mid-flight plan adjustment when the model is wrong. |
+| `/mission:validate [n\|all]` | Observe | Run acceptance criteria — let reality speak. |
 
 ## Operating Philosophy: OODA
 
@@ -23,23 +48,12 @@ The OODA cycle in missions:
 - **Decide** — For novel situations, deliberate explicitly. For familiar patterns, skip to action via implicit guidance.
 - **Act** — Execute. Every action is a hypothesis test — observe the result and reorient.
 
-Three operating principles that follow:
+Three operating principles:
 1. **Mismatch detection over blind execution.** At every milestone boundary, check: does reality match expectations? If not, reorient before continuing.
 2. **Destruction and creation over retry.** When an approach fails 3 times, don't try a 4th variation. Destroy the mental model. Rebuild from the pieces + new information.
 3. **Tempo control over constant speed.** Fast for familiar work, deliberate for novel challenges. Context refresh between milestones is a forced reorientation that improves quality.
 
 See [references/ooda.md](references/ooda.md) for the full OODA framework.
-
-## Subcommands
-
-| Command | OODA Phase | Purpose |
-|---|---|---|
-| `/mission:plan <task>` | Orient | **Start here.** Research, decompose, approve, save the plan. |
-| `/mission:start` | Act | Begin execution from milestone 1. Requires an approved plan. |
-| `/mission:continue` | Re-orient | Resume with fresh context from last checkpoint. |
-| `/mission:status` | Observe | Show current progress. |
-| `/mission:pivot` | Destroy & Create | Mid-flight plan adjustment when the model is wrong. |
-| `/mission:validate` | Observe | Run acceptance criteria — let reality speak. |
 
 ## Lifecycle
 
@@ -73,3 +87,24 @@ Boyd's organizational OODA relies on shared orientation — team members with a 
 ```
 
 After `/clear` or context compaction, `/mission:continue` re-reads these files and inherits full orientation. Nothing is lost — the files ARE your memory.
+
+## Plugin Layout
+
+```
+mission/
+├── .claude-plugin/
+│   └── plugin.json       # plugin manifest
+├── skills/
+│   ├── plan/SKILL.md     # /mission:plan
+│   ├── start/SKILL.md    # /mission:start
+│   ├── continue/SKILL.md # /mission:continue
+│   ├── status/SKILL.md   # /mission:status
+│   ├── pivot/SKILL.md    # /mission:pivot
+│   └── validate/SKILL.md # /mission:validate
+├── references/            # supporting docs skills link into
+│   ├── execution-protocol.md
+│   ├── mission-plan-template.md
+│   ├── ooda.md
+│   └── patterns.md
+└── README.md              # this file
+```

@@ -1,9 +1,10 @@
 ---
-name: mission:continue
+name: continue
 description: >-
   Resume a mission from the last completed milestone. Use after /clear,
   in a new session, or when context is getting long. Reads plan and
   progress from .mission/ files and picks up where you left off.
+disable-model-invocation: true
 effort: high
 ---
 
@@ -55,7 +56,7 @@ If progress notes mention partially completed work:
 
 ### 5. Execute — Enter the OODA cycle
 
-Follow the execution protocol in [../references/execution-protocol.md](../references/execution-protocol.md) starting from the **next incomplete milestone**.
+Follow the execution protocol in [../../references/execution-protocol.md](../../references/execution-protocol.md) starting from the **next incomplete milestone**.
 
 ## The principle
 

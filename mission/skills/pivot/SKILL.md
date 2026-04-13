@@ -1,10 +1,11 @@
 ---
-name: mission:pivot
+name: pivot
 description: >-
   Mid-flight mission plan adjustment. Use when the approach is wrong,
   requirements changed, a milestone needs splitting, or scope needs updating.
   Boyd's "destruction and creation" applied to the plan.
 argument-hint: "[reason for pivot]"
+disable-model-invocation: true
 effort: high
 ---
 

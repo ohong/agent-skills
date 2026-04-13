@@ -1,9 +1,10 @@
 ---
-name: mission:validate
+name: validate
 description: >-
   Run acceptance criteria for the current milestone (or all milestones).
   Reports pass/fail. Pure observation — does not advance or fix anything.
 argument-hint: "[milestone number or 'all']"
+disable-model-invocation: true
 ---
 
 # Mission Validate — Let Reality Speak

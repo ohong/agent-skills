@@ -1,10 +1,11 @@
 ---
-name: mission:plan
+name: plan
 description: >-
   Interactive mission planning — research the codebase, ask clarifying questions,
   decompose work into milestones with acceptance criteria, and save an approved plan.
-  Start here before /mission:start. Invoke with /mission:plan <task description>.
+  Start here before /mission:start.
 argument-hint: "<task description>"
+disable-model-invocation: true
 effort: high
 ---
 
@@ -50,7 +51,7 @@ Boyd's orientation has five inputs. Map them:
 
 ## Step 4: Decide — Draft the mission plan
 
-Create the plan using the template at [../references/mission-plan-template.md](../references/mission-plan-template.md).
+Create the plan using the template at [../../references/mission-plan-template.md](../../references/mission-plan-template.md).
 
 Key rules:
 - **3-7 milestones.** Fewer than 3 = milestones too large (context collapse risk). More than 7 = over-decomposition (coordination overhead).

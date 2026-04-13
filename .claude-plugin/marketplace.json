@@ -1,0 +1,24 @@
+{
+  "name": "ohong-skills",
+  "owner": {
+    "name": "Oscar Hong"
+  },
+  "metadata": {
+    "description": "Agent skills and plugins for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "mission",
+      "source": "./mission",
+      "description": "Structured execution framework for long-horizon coding tasks, built on Boyd's OODA loop. Decomposes projects into milestones with validation gates, fresh context per step, and file-based state.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Oscar Hong"
+      },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["ooda", "planning", "milestones", "long-tasks", "execution"],
+      "category": "workflow"
+    }
+  ]
+}
