@@ -8,6 +8,19 @@
   },
   "plugins": [
     {
+      "name": "audit-and-improve",
+      "source": "./audit-and-improve",
+      "description": "Deeply analyze a repository and produce an honest, evidence-based, severity-rated audit plus a prioritized improvement plan (Repo Map -> Audit -> Strategy -> Task Plan). Analysis-only; offers to execute the plan afterward.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Oscar Hong"
+      },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["audit", "code-review", "tech-debt", "refactor", "assessment"],
+      "category": "workflow"
+    },
+    {
       "name": "mission",
       "source": "./mission",
       "description": "Structured execution framework for long-horizon coding tasks, built on Boyd's OODA loop. Decomposes projects into milestones with validation gates, fresh context per step, and file-based state.",

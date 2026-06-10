@@ -15,6 +15,7 @@ Add the marketplace, then install individual plugins:
 
 | Plugin | Description |
 |--------|-------------|
+| [audit-and-improve](audit-and-improve/) | Evidence-based, severity-rated repository audit plus a prioritized improvement plan (Repo Map → Audit → Strategy → Task Plan). Analysis-only; offers to execute the plan afterward. |
 | [mission](mission/) | Structured execution framework for long-horizon coding tasks. Decomposes projects into milestones with validation gates, built on Boyd's OODA loop. |
 
 ## Other Skills (not yet converted to plugins)

@@ -1,0 +1,10 @@
+{
+  "name": "audit-and-improve",
+  "description": "Deeply analyze a repository and produce an honest, evidence-based, severity-rated audit plus a prioritized improvement plan (Repo Map → Audit → Strategy → Task Plan). Analysis-only; offers to execute the plan afterward.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Oscar Hong"
+  },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}
