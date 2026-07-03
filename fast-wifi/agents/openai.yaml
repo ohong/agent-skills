@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fast Wi-Fi"
+  short_description: "Diagnose and improve slow Wi-Fi"
+  default_prompt: "Use $fast-wifi to make my current internet connection faster."
