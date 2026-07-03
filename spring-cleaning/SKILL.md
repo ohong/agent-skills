@@ -14,16 +14,15 @@ description: >
 # Spring Cleaning — Mac Disk Space Cleanup
 
 A skill for generating a safe, prioritized, step-by-step runbook to free up
-local disk space on a Mac. Assumes the user has:
-- **iCloud** enabled (for offloading photos, messages, documents)
-- A **2TB external SSD** for archiving projects and large files
-- Tools available: DaisyDisk, `ncdu`, `dust`, `fdupes`, `brew`
+local disk space on a Mac. Before recommending offloading or deletion, confirm
+the user's backup, cloud-sync, and external-storage setup. Useful optional tools
+include DaisyDisk, `ncdu`, `dust`, `fdupes`, and `brew`.
 
 ---
 
 ## Step 1 — Get a Storage Snapshot
 
-Before generating the runbook, Claude needs a storage report. Accept any of the
+Before generating the runbook, the agent needs a storage report. Accept any of the
 following (in order of detail/usefulness):
 
 | Report Type | How to Get It | Detail Level |
