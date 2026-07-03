@@ -1,0 +1,4 @@
+interface:
+  display_name: "Search X"
+  short_description: "Find remembered X posts by meaning"
+  default_prompt: "Use $search-x to find an X post I remember only by its meaning, mood, examples, or partial wording."
