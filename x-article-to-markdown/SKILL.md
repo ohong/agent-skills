@@ -7,17 +7,24 @@ description: Convert an X/Twitter article, post, status, or thread URL into a cl
 
 ## Overview
 
-Create a self-contained Markdown archive from an X URL. Preserve readable text as Markdown, keep X posts as live tweet embeds where possible, and store photos/screenshots/media in a sibling folder with relative links.
+Create a self-contained Markdown archive from an X URL. Preserve readable text as Markdown, keep X posts as live tweet embeds where possible, and store photos/screenshots/media in a sibling folder.
+
+Final user-facing archives belong in the saved article library, not a repo scratch directory:
+
+- Default library root: `~/Documents/Saved Articles/X/`
+- Default archive folder: `<handle>-<status-id>/`
+- Markdown filename: title slug, for example `getting-started-with-loops.md`
+- Companion files: `source.json` and `media/`
 
 ## Output Contract
 
 Given a single X URL, produce:
 
-- `article.md`: clean Markdown with source metadata, article/post content, tweet embed blocks, local image links, and notes about any fallback screenshots.
+- `<title-slug>.md`: clean Markdown with source metadata, article/post content, tweet embed blocks, local image links, and notes about any fallback screenshots.
 - `media/`: downloaded images, copied local screenshots, video thumbnails, and other media assets referenced by relative paths.
 - `source.json`: optional extraction manifest used to build the archive.
 
-Use `outputs/` for user-facing deliverables when working in a Codex projectless workspace.
+Use `~/Documents/Saved Articles/X/` for user-facing deliverables. Use `outputs/` only for temporary scratch work when explicitly requested or when the user asks to keep the archive inside the current repo.
 
 ## Workflow
 
@@ -50,8 +57,10 @@ Use `outputs/` for user-facing deliverables when working in a Codex projectless 
 
 5. Build the archive.
    - Create an extraction manifest and run `scripts/package_x_article.py` from this skill directory.
-   - Keep paths relative in the generated Markdown so the archive can be moved as a folder.
+   - Use title-slug Markdown filenames for saved-article library entries; do not leave final deliverables named `article.md`.
+   - For Codex app/local previews, write absolute media links so images render instead of placeholders.
    - Open or inspect the final Markdown and media folder before responding.
+   - Validate media by checking the image files are non-empty and recognized as real image files, not just that Markdown links point somewhere.
 
 ## Extraction Manifest
 
@@ -89,26 +98,33 @@ Use this JSON shape with the packaging script. Omit fields that are unknown.
 }
 ```
 
-Run:
+Run this for the normal saved-articles library flow:
 
 ```bash
 python scripts/package_x_article.py \
   --manifest /path/to/source.json \
-  --out-dir /path/to/output-folder
+  --title-filename \
+  --absolute-media-links
 ```
+
+When `--out-dir` is omitted, the packager writes to `~/Documents/Saved Articles/X/<handle>-<status-id>/`.
+
+Use `--out-dir /path/to/output-folder` only when the user asks for a specific destination. Use `--library-root /path/to/library` to change the saved-articles library root.
 
 To create a starter manifest:
 
 ```bash
 python scripts/package_x_article.py \
   --init-url "https://x.com/handle/status/id" \
-  --out-dir /path/to/output-folder
+  --library-root "~/Documents/Saved Articles/X"
 ```
 
 ## Quality Bar
 
 - The Markdown should read like an article archive, not a dump of X UI text.
-- Every local media reference in `article.md` must point to an existing file.
+- Every local media reference in the Markdown file must point to an existing file.
+- In Codex app/local Markdown previews, use absolute local media paths; relative `media/...` links can render as gray placeholders even when the files exist.
+- Verify media with `file path/to/media/*` or equivalent image inspection so failed downloads/placeholders are caught.
 - Every embedded tweet should include a source URL and either a live embed block or a local screenshot/fallback text.
 - Preserve source attribution and avoid inventing unavailable text, dates, authors, or alt text.
 - Mention any inaccessible media or screenshot fallbacks in a short note at the end of the Markdown.

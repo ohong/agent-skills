@@ -21,6 +21,8 @@ USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 
+DEFAULT_LIBRARY_ROOT = Path.home() / "Documents" / "Saved Articles" / "X"
+
 
 def slugify(value: str, fallback: str = "x-article") -> str:
     value = value.strip().lower()
@@ -41,6 +43,31 @@ def canonical_x_url(url: str) -> str:
     if not path:
         return ""
     return urllib.parse.urlunparse(("https", host, path, "", "", ""))
+
+
+def source_slug_from_url(url: str) -> str:
+    canonical = canonical_x_url(url)
+    parsed = urllib.parse.urlparse(canonical)
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) >= 3 and parts[1] == "status":
+        return slugify(f"{parts[0]}-{parts[2]}")
+    if len(parts) >= 3 and parts[1] == "article":
+        return slugify(f"{parts[0]}-{parts[2]}")
+    return slugify(canonical or url, "x-article")
+
+
+def title_filename(data: dict[str, Any]) -> str:
+    title = str(data.get("title") or "").strip()
+    if title:
+        return f"{slugify(title)}.md"
+    return f"{source_slug_from_url(str(data.get('url') or ''))}.md"
+
+
+def resolve_out_dir(out_dir_arg: str | None, library_root_arg: str | None, data: dict[str, Any]) -> Path:
+    if out_dir_arg:
+        return Path(out_dir_arg).expanduser().resolve()
+    library_root = Path(library_root_arg or DEFAULT_LIBRARY_ROOT).expanduser()
+    return (library_root / source_slug_from_url(str(data.get("url") or ""))).resolve()
 
 
 def guess_extension(url: str, content_type: str | None = None, default: str = ".bin") -> str:
@@ -113,26 +140,38 @@ def author_line(author: Any) -> str:
     return name
 
 
-def media_markdown(item: dict[str, Any], rel_path: str) -> str:
+def media_markdown(item: dict[str, Any], link_path: str) -> str:
     alt = str(item.get("alt") or item.get("caption") or "X media").strip()
     caption = str(item.get("caption") or "").strip()
     kind = str(item.get("kind") or "").lower()
     if kind == "video":
-        line = f"[Video asset]({rel_path})"
+        line = f"[Video asset]({link_path})"
     else:
-        line = f"![{alt}]({rel_path})"
+        line = f"![{alt}]({link_path})"
     if caption:
         line += f"\n\n_{caption}_"
     return line
+
+
+def markdown_asset_path(rel_path: str, out_dir: Path, absolute: bool) -> str:
+    if not absolute:
+        return rel_path
+    return str((out_dir / rel_path).resolve())
 
 
 def tweet_embed_html(url: str) -> str:
     return f'<blockquote class="twitter-tweet"><a href="{url}"></a></blockquote>'
 
 
-def render_markdown(data: dict[str, Any], media_dir: Path, notes: list[str]) -> str:
+def render_markdown(
+    data: dict[str, Any],
+    media_dir: Path,
+    notes: list[str],
+    absolute_media_links: bool = False,
+) -> str:
     url = canonical_x_url(str(data.get("url") or ""))
     title = str(data.get("title") or "").strip() or "X Article Archive"
+    out_dir = media_dir.parent
     lines: list[str] = [f"# {title}", ""]
     meta = [
         ("Source", url),
@@ -158,7 +197,8 @@ def render_markdown(data: dict[str, Any], media_dir: Path, notes: list[str]) -> 
             try:
                 rel = store_asset(item, media_dir, f"media-{index}")
                 if rel:
-                    lines.extend([media_markdown(item, rel), ""])
+                    link_path = markdown_asset_path(rel, out_dir, absolute_media_links)
+                    lines.extend([media_markdown(item, link_path), ""])
             except Exception as exc:  # noqa: BLE001
                 notes.append(f"Could not save media {index}: {exc}")
 
@@ -184,7 +224,8 @@ def render_markdown(data: dict[str, Any], media_dir: Path, notes: list[str]) -> 
                 try:
                     rel = store_asset(item, media_dir, f"embed-{index}-media-{media_index}")
                     if rel:
-                        lines.extend([media_markdown(item, rel), ""])
+                        link_path = markdown_asset_path(rel, out_dir, absolute_media_links)
+                        lines.extend([media_markdown(item, link_path), ""])
                 except Exception as exc:  # noqa: BLE001
                     notes.append(f"Could not save embed {index} media {media_index}: {exc}")
 
@@ -197,7 +238,8 @@ def render_markdown(data: dict[str, Any], media_dir: Path, notes: list[str]) -> 
             try:
                 rel = store_asset(item, media_dir, f"screenshot-{index}")
                 if rel:
-                    lines.extend([media_markdown({"alt": item.get("caption") or "Screenshot"}, rel), ""])
+                    link_path = markdown_asset_path(rel, out_dir, absolute_media_links)
+                    lines.extend([media_markdown({"alt": item.get("caption") or "Screenshot"}, link_path), ""])
                     caption = str(item.get("caption") or "").strip()
                     if caption:
                         lines.extend([f"_{caption}_", ""])
@@ -234,17 +276,25 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", help="Extraction manifest JSON to package")
     parser.add_argument("--init-url", help="Create a starter source.json for this X URL")
-    parser.add_argument("--out-dir", required=True, help="Output folder")
+    parser.add_argument("--out-dir", help="Output folder; defaults to ~/Documents/Saved Articles/X/<handle>-<status-id>")
+    parser.add_argument("--library-root", help="Saved article library root when --out-dir is omitted")
+    parser.add_argument(
+        "--title-filename",
+        action="store_true",
+        help="Write <title-slug>.md instead of article.md",
+    )
+    parser.add_argument(
+        "--absolute-media-links",
+        action="store_true",
+        help="Write absolute local image paths in Markdown for renderers that do not resolve relative links",
+    )
     args = parser.parse_args()
 
-    out_dir = Path(args.out_dir).expanduser().resolve()
-    out_dir.mkdir(parents=True, exist_ok=True)
-    media_dir = out_dir / "media"
-    media_dir.mkdir(exist_ok=True)
-
-    source_path = out_dir / "source.json"
     if args.init_url:
         data = starter_manifest(args.init_url)
+        out_dir = resolve_out_dir(args.out_dir, args.library_root, data)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        source_path = out_dir / "source.json"
         write_json(source_path, data)
         print(source_path)
         return 0
@@ -254,12 +304,18 @@ def main() -> int:
 
     manifest_path = Path(args.manifest).expanduser().resolve()
     data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    out_dir = resolve_out_dir(args.out_dir, args.library_root, data)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    media_dir = out_dir / "media"
+    media_dir.mkdir(exist_ok=True)
+    source_path = out_dir / "source.json"
     notes: list[str] = []
-    markdown = render_markdown(data, media_dir, notes)
-    (out_dir / "article.md").write_text(markdown, encoding="utf-8")
+    markdown = render_markdown(data, media_dir, notes, args.absolute_media_links)
+    markdown_path = out_dir / (title_filename(data) if args.title_filename else "article.md")
+    markdown_path.write_text(markdown, encoding="utf-8")
     if manifest_path != source_path:
         write_json(source_path, data)
-    print(out_dir / "article.md")
+    print(markdown_path)
     return 0
 
 
