@@ -56,18 +56,26 @@ def source_slug_from_url(url: str) -> str:
     return slugify(canonical or url, "x-article")
 
 
-def title_filename(data: dict[str, Any]) -> str:
+def title_slug(data: dict[str, Any]) -> str:
     title = str(data.get("title") or "").strip()
     if title:
-        return f"{slugify(title)}.md"
-    return f"{source_slug_from_url(str(data.get('url') or ''))}.md"
+        return slugify(title)
+    return ""
+
+
+def archive_folder_slug(data: dict[str, Any]) -> str:
+    return title_slug(data) or source_slug_from_url(str(data.get("url") or ""))
+
+
+def title_filename(data: dict[str, Any]) -> str:
+    return f"{archive_folder_slug(data)}.md"
 
 
 def resolve_out_dir(out_dir_arg: str | None, library_root_arg: str | None, data: dict[str, Any]) -> Path:
     if out_dir_arg:
         return Path(out_dir_arg).expanduser().resolve()
     library_root = Path(library_root_arg or DEFAULT_LIBRARY_ROOT).expanduser()
-    return (library_root / source_slug_from_url(str(data.get("url") or ""))).resolve()
+    return (library_root / archive_folder_slug(data)).resolve()
 
 
 def guess_extension(url: str, content_type: str | None = None, default: str = ".bin") -> str:
@@ -276,7 +284,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", help="Extraction manifest JSON to package")
     parser.add_argument("--init-url", help="Create a starter source.json for this X URL")
-    parser.add_argument("--out-dir", help="Output folder; defaults to ~/Documents/Saved Articles/X/<handle>-<status-id>")
+    parser.add_argument("--out-dir", help="Output folder; defaults to ~/Documents/Saved Articles/X/<title-slug>")
     parser.add_argument("--library-root", help="Saved article library root when --out-dir is omitted")
     parser.add_argument(
         "--title-filename",

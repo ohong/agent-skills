@@ -31,6 +31,7 @@ Add the marketplace, then install individual plugins:
 | [search-x](search-x/) | Finds remembered X/Twitter posts by semantic fingerprint, even when exact wording or examples are wrong. |
 | [spec-writer](spec-writer/) | Converts research reports into implementation-ready technical specifications. |
 | [spring-cleaning](spring-cleaning/) | Generates a safe Mac disk-space cleanup runbook from a real storage report. |
+| [transcribe-yt](transcribe-yt/) | Saves YouTube video and podcast transcripts as local Markdown through usetranscribe.io. |
 | [vibe-security-audit](vibe-security-audit/) | Audits and fixes security vulnerabilities in AI-assisted "vibe-coded" apps. |
 | [x-article-to-markdown](x-article-to-markdown/) | Converts X/Twitter posts, articles, and threads into Markdown archives with local media assets. |
 | [xray](xray/) | Code analysis and exploration tool. |

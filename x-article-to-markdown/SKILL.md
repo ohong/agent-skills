@@ -12,8 +12,8 @@ Create a self-contained Markdown archive from an X URL. Preserve readable text a
 Final user-facing archives belong in the saved article library, not a repo scratch directory:
 
 - Default library root: `~/Documents/Saved Articles/X/`
-- Default archive folder: `<handle>-<status-id>/`
-- Markdown filename: title slug, for example `getting-started-with-loops.md`
+- Default archive folder: title slug, for example `getting-started-with-loops/`
+- Markdown filename: matching title slug, for example `getting-started-with-loops.md`
 - Companion files: `source.json` and `media/`
 
 ## Output Contract
@@ -31,7 +31,7 @@ Use `~/Documents/Saved Articles/X/` for user-facing deliverables. Use `outputs/`
 1. Normalize and inspect the URL.
    - Accept `https://x.com/{handle}/status/{id}` and `https://twitter.com/{handle}/status/{id}`.
    - Keep the canonical source URL in the Markdown.
-   - Derive a stable output slug from `{handle}-{id}` when no output name is requested.
+   - Derive the final archive folder and Markdown filename from the article title. Use `{handle}-{id}` only as a fallback when no title is available yet, such as a starter manifest.
 
 2. Load the page.
    - Prefer the Browser or Chrome plugin when the page requires a logged-in session, expanded long-form article text, or interactive media.
@@ -57,7 +57,7 @@ Use `~/Documents/Saved Articles/X/` for user-facing deliverables. Use `outputs/`
 
 5. Build the archive.
    - Create an extraction manifest and run `scripts/package_x_article.py` from this skill directory.
-   - Use title-slug Markdown filenames for saved-article library entries; do not leave final deliverables named `article.md`.
+   - Use title-slug folders and title-slug Markdown filenames for saved-article library entries; do not leave final deliverables named `article.md` or store them in opaque status-id folders.
    - For Codex app/local previews, write absolute media links so images render instead of placeholders.
    - Open or inspect the final Markdown and media folder before responding.
    - Validate media by checking the image files are non-empty and recognized as real image files, not just that Markdown links point somewhere.
@@ -107,7 +107,7 @@ python scripts/package_x_article.py \
   --absolute-media-links
 ```
 
-When `--out-dir` is omitted, the packager writes to `~/Documents/Saved Articles/X/<handle>-<status-id>/`.
+When `--out-dir` is omitted, the packager writes to `~/Documents/Saved Articles/X/<title-slug>/`. If the manifest title is blank, the fallback folder is `<handle>-<status-id>/` until the title is known.
 
 Use `--out-dir /path/to/output-folder` only when the user asks for a specific destination. Use `--library-root /path/to/library` to change the saved-articles library root.
 
@@ -131,4 +131,4 @@ python scripts/package_x_article.py \
 
 ## Resource
 
-- `scripts/package_x_article.py`: packages an extraction manifest into `article.md`, downloads/copies media into `media/`, and creates a starter manifest when needed.
+- `scripts/package_x_article.py`: packages an extraction manifest into a title-slug Markdown archive, downloads/copies media into `media/`, and creates a starter manifest when needed.
