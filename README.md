@@ -34,4 +34,4 @@ Add the marketplace, then install individual plugins:
 | [transcribe-yt](transcribe-yt/) | Saves YouTube video and podcast transcripts as local Markdown through usetranscribe.io. |
 | [vibe-security-audit](vibe-security-audit/) | Audits and fixes security vulnerabilities in AI-assisted "vibe-coded" apps. |
 | [x-article-to-markdown](x-article-to-markdown/) | Converts X/Twitter posts, articles, and threads into Markdown archives with local media assets. |
-| [xray](xray/) | Code analysis and exploration tool. |
+| [xray](xray/) | X-rays a YC vertical from the Startups.RIP database — trends, failure patterns, rebuild candidates — then generates a data-journalism page via data-storytelling. |

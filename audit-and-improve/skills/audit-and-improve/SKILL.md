@@ -11,7 +11,8 @@ description: >
   (Claude Code, Codex, Cursor, etc.) — it relies only on reading files, searching
   the codebase, and running read-only shell commands. The audit phase NEVER
   modifies code; it ends by offering to execute the plan as a separate, opt-in
-  step.
+  step. For a security-only review of a BaaS-backed app that also applies
+  fixes, use vibe-security-audit instead.
 user-invokable: true
 args:
   - name: target

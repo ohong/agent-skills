@@ -1,15 +1,13 @@
 ---
 name: vibe-security-audit
 description: >
-  Audit and fix security vulnerabilities in "vibe-coded" applications — projects built quickly
-  with AI assistance that often ship with dangerous security gaps. Use this skill whenever you're
-  helping a user build, review, or debug a web application, especially one using Supabase, Firebase,
-  or any Backend-as-a-Service (BaaS). Also trigger this skill when you see code that touches
-  databases, API keys, authentication, environment variables, or client-side JavaScript bundles.
-  Even if the user doesn't ask for a security review, proactively flag critical issues like missing
-  Row Level Security, hardcoded secrets, or unauthenticated database access. This skill is inspired
-  by the Wiz Research disclosure of the Moltbook breach (February 2026), where a single missing
-  RLS policy exposed 1.5 million API keys, 35,000 emails, and private messages to the open internet.
+  Audit and fix security vulnerabilities in "vibe-coded" apps — projects built fast with AI
+  assistance, especially on Supabase, Firebase, or other BaaS backends. Trigger when building,
+  reviewing, debugging, or deploying a web app with a BaaS backend, or when code touches
+  databases, API keys, authentication, environment variables, or client-side bundles.
+  Proactively flag critical issues (missing Row Level Security, hardcoded secrets,
+  unauthenticated database access) even if the user didn't ask for a security review.
+  For a general full-repo health audit across all dimensions, use audit-and-improve instead.
 ---
 
 # Vibe Security Audit

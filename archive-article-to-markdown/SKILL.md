@@ -1,6 +1,6 @@
 ---
 name: archive-article-to-markdown
-description: Archive a web article URL through archive.ph/archive.today and extract the main readable article into a local Markdown file. Use when the user provides a news, magazine, blog, or paywalled article URL and wants a shareable .md archive without being prompted for per-run decisions.
+description: Archive a web article URL through archive.ph/archive.today and extract the main readable article into a local Markdown file. Use when the user provides a news, magazine, blog, or paywalled article URL and wants a shareable .md archive without being prompted for per-run decisions. For x.com/twitter.com URLs, use x-article-to-markdown instead.
 ---
 
 # Archive Article to Markdown

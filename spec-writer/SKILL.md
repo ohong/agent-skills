@@ -47,7 +47,7 @@ Pick the simplest modern stack that delivers the product:
 
 Override defaults when the product demands it. An email-processing app needs mail parsing libraries. A media-heavy app needs object storage (S3/R2). A real-time collaboration tool needs CRDTs. Let the product drive the stack.
 
-**Always use latest stable versions.** Research current versions before writing the spec. Pin exact versions — `next@15.2.3` not `next@15`. If the product uses AI/LLM features, specify the exact model ID (e.g., `claude-sonnet-4-20250514`, `gpt-4o-2024-11-20`).
+**Always use latest stable versions.** Research current versions before writing the spec. Pin exact versions — `next@15.2.3` not `next@15`. If the product uses AI/LLM features, specify the exact current model ID (e.g., `claude-sonnet-5`) — verify it via web search rather than relying on memory; model IDs go stale fast.
 
 ## Output Format
 

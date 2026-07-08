@@ -1,6 +1,6 @@
 ---
 name: name-it
-description: Generate compelling brand, product, or company names using a structured naming methodology. Use this skill whenever someone needs to name anything — a startup, app, product, feature, project, side hustle, newsletter, podcast, band, pet project, domain, open-source library, or creative endeavor. Trigger on phrases like "name my company," "what should I call," "brainstorm names," "I need a name for," "help me name," "naming ideas," or any request where the user is searching for the right word or phrase to represent something they're building. Also trigger when users are evaluating or comparing existing name candidates, struggling with a naming decision, asking "is this a good name," doing competitive naming analysis, or exploring domain availability strategy. Even if the user already has a name and wants feedback, use this skill — the evaluation framework applies. If the user mentions branding, identity, or positioning in the context of choosing a name, use this skill.
+description: Generate and evaluate brand, product, or company names using a structured methodology (orientation → exploration → distillation → validation → commitment). Use whenever the user needs to name anything — startup, app, product, feature, library, newsletter, podcast, domain — or wants feedback on existing name candidates, a naming decision, or domain strategy. Trigger on "name my company," "what should I call," "brainstorm names," "is this a good name," and similar.
 ---
 
 # Name-It: Structured Naming in One Session

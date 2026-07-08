@@ -1,6 +1,6 @@
 ---
 name: fast-wifi
-description: Diagnose and improve the user's current macOS internet connection speed. Use when the user asks Codex to make Wi-Fi or internet faster, improve a named SSID, compare a newly joined network, debug slow speed tests, reduce Wi-Fi latency, or decide whether the bottleneck is the Mac, Wi-Fi/AP, router, VPN/proxy, DNS, captive/public network shaping, or ISP/uplink.
+description: Diagnose and improve the user's current macOS internet connection speed. Use when the user asks to make Wi-Fi or internet faster, improve a named SSID, compare a newly joined network, debug slow speed tests, reduce Wi-Fi latency, or decide whether the bottleneck is the Mac, Wi-Fi/AP, router, VPN/proxy, DNS, captive/public network shaping, or ISP/uplink.
 ---
 
 # Fast Wi-Fi
