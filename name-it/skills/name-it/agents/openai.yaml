@@ -1,0 +1,4 @@
+interface:
+  display_name: "Name It"
+  short_description: "Structure brand and product naming decisions"
+  default_prompt: "Use $name-it to develop and validate names for this brand or product."

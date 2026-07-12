@@ -124,7 +124,7 @@ A mismatch is a gap between what you expect and what you observe. Mismatches are
 
 Experienced operators go from orientation directly to action for recognized situations. They only invoke full deliberation for genuinely new problems. This is how tempo is maintained.
 
-**In practice**: If you've seen this pattern before (a standard CRUD endpoint, a familiar test setup, a common error), act decisively. If the situation is genuinely novel (unfamiliar architecture, unexpected behavior, a pattern you haven't seen), slow down: read more code, explore with subagents, think before acting.
+**In practice**: If you've seen this pattern before (a standard CRUD endpoint, a familiar test setup, a common error), act decisively. If the situation is genuinely novel (unfamiliar architecture, unexpected behavior, a pattern you haven't seen), slow down: read more code and think before acting.
 
 ### 4. Every action is a hypothesis test
 
@@ -150,7 +150,7 @@ Boyd's organizational OODA relies on shared orientation — team members who sha
 
 Boyd's tempo advantage is not about raw speed. It's about operating at a pace the problem demands — fast for familiar work, deliberate for novel challenges — while maintaining orientation quality throughout.
 
-**In practice**: Small milestones on well-understood code → move fast, minimal deliberation. Large milestones on unfamiliar architecture → slow down, explore with subagents, orient thoroughly before acting. Context refresh between milestones is not a delay — it's a forced reorientation that IMPROVES quality.
+**In practice**: Small milestones on well-understood code → move fast, minimal deliberation. Large milestones on unfamiliar architecture → slow down and orient thoroughly before acting. Context refresh between milestones is not a delay — it's a forced reorientation that IMPROVES quality.
 
 ---
 

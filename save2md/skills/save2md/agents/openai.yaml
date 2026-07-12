@@ -1,0 +1,4 @@
+interface:
+  display_name: "Save to Markdown"
+  short_description: "Save online content as local Markdown"
+  default_prompt: "Use $save2md to save this URL as a local Markdown archive."

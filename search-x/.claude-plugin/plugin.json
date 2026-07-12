@@ -1,0 +1,8 @@
+{
+  "name": "search-x",
+  "version": "0.1.0",
+  "description": "Find a remembered X post from fuzzy clues and verify it live.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

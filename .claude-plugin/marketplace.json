@@ -4,34 +4,96 @@
     "name": "Oscar Hong"
   },
   "metadata": {
-    "description": "Agent skills and plugins for Claude Code"
+    "description": "Reusable Claude Code skills from ohong/agent-skills"
   },
   "plugins": [
     {
       "name": "audit-and-improve",
       "source": "./audit-and-improve",
-      "description": "Deeply analyze a repository and produce an honest, evidence-based, severity-rated audit plus a prioritized improvement plan (Repo Map -> Audit -> Strategy -> Task Plan). Analysis-only; offers to execute the plan afterward.",
-      "version": "0.1.0",
-      "author": {
-        "name": "Oscar Hong"
-      },
+      "description": "Evidence-based repository audit and prioritized improvement plan.",
+      "version": "0.1.1",
+      "author": { "name": "Oscar Hong" },
       "repository": "https://github.com/ohong/agent-skills",
       "license": "MIT",
-      "keywords": ["audit", "code-review", "tech-debt", "refactor", "assessment"],
+      "keywords": ["audit", "code-review", "tech-debt"],
       "category": "workflow"
+    },
+    {
+      "name": "capture-design",
+      "source": "./capture-design",
+      "description": "Save reference visuals as a reusable design-system swipefile.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["design", "swipefile", "references"],
+      "category": "design"
+    },
+    {
+      "name": "fast-wifi",
+      "source": "./fast-wifi",
+      "description": "Diagnose macOS Wi-Fi and internet problems with measured checks.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["macos", "wifi", "networking"],
+      "category": "utilities"
     },
     {
       "name": "mission",
       "source": "./mission",
-      "description": "Structured execution framework for long-horizon coding tasks, built on Boyd's OODA loop. Decomposes projects into milestones with validation gates, fresh context per step, and file-based state.",
-      "version": "0.1.0",
-      "author": {
-        "name": "Oscar Hong"
-      },
+      "description": "File-backed milestone planning and execution for long-horizon work.",
+      "version": "0.1.1",
+      "author": { "name": "Oscar Hong" },
       "repository": "https://github.com/ohong/agent-skills",
       "license": "MIT",
-      "keywords": ["ooda", "planning", "milestones", "long-tasks", "execution"],
+      "keywords": ["planning", "milestones", "execution"],
       "category": "workflow"
+    },
+    {
+      "name": "name-it",
+      "source": "./name-it",
+      "description": "Run a structured brand or product naming and validation process.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["naming", "branding", "validation"],
+      "category": "productivity"
+    },
+    {
+      "name": "post-walk",
+      "source": "./post-walk",
+      "description": "Turn an Apple Voice Memo into project notes, tasks, todos, and drafts.",
+      "version": "0.1.1",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["voice-memo", "transcription", "tasks"],
+      "category": "productivity"
+    },
+    {
+      "name": "save2md",
+      "source": "./save2md",
+      "description": "Save articles, X posts, and YouTube transcripts as local Markdown.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["markdown", "archive", "transcript"],
+      "category": "productivity"
+    },
+    {
+      "name": "search-x",
+      "source": "./search-x",
+      "description": "Find a remembered X post from fuzzy clues and verify it live.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["x", "twitter", "search"],
+      "category": "productivity"
     }
   ]
 }

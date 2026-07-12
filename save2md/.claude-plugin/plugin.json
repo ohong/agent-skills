@@ -1,0 +1,8 @@
+{
+  "name": "save2md",
+  "version": "0.1.0",
+  "description": "Save articles, X posts, and YouTube transcripts as local Markdown.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

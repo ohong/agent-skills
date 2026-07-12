@@ -1,37 +1,36 @@
-# Agent Skills
+# ohong-skills
 
-A Claude Code plugin marketplace with skills and tools for structured development workflows.
+Reusable Claude Code plugins and Codex skills that add scripts, external retrieval, or durable specialist workflows.
 
-## Installation
+## Claude Code
 
-Add the marketplace, then install individual plugins:
+Add the marketplace, then install the plugins you want:
 
-```bash
+```text
 /plugin marketplace add ohong/agent-skills
-/plugin install mission@ohong-skills
+/plugin install save2md@ohong-skills
 ```
 
-## Plugins
+## Marketplace plugins
 
 | Plugin | Description |
-|--------|-------------|
-| [audit-and-improve](audit-and-improve/) | Evidence-based, severity-rated repository audit plus a prioritized improvement plan (Repo Map → Audit → Strategy → Task Plan). Analysis-only; offers to execute the plan afterward. |
-| [mission](mission/) | Structured execution framework for long-horizon coding tasks. Decomposes projects into milestones with validation gates, built on Boyd's OODA loop. |
+|---|---|
+| [audit-and-improve](audit-and-improve/) | Audits a repository and produces a prioritized improvement plan. |
+| [capture-design](capture-design/) | Saves reference visuals as a reusable design-system swipefile. |
+| [fast-wifi](fast-wifi/) | Diagnoses macOS Wi-Fi and internet problems with measured checks. |
+| [mission](mission/) | Runs file-backed milestone planning and execution for long-horizon work. |
+| [name-it](name-it/) | Runs a structured brand or product naming and validation process. |
+| [post-walk](post-walk/) | Turns an Apple Voice Memo into project notes, tasks, todos, and drafts. |
+| [save2md](save2md/) | Saves articles, X posts, and YouTube transcripts as local Markdown. |
+| [search-x](search-x/) | Finds a remembered X post from fuzzy clues and verifies it live. |
 
-## Other Skills (not yet converted to plugins)
+## Codex
 
-| Skill | Description |
-|-------|-------------|
-| [archive-article-to-markdown](archive-article-to-markdown/) | Archives web articles through archive.ph/archive.today and extracts the readable article into Markdown. |
-| [data-storytelling](data-storytelling/) | Data visualizations, infographics, charts, and interactive graphics in the style of NYT/FT editorial viz. |
-| [delegate](delegate/) | Coordinates a planner-generator-evaluator workflow for substantial implementation tasks. |
-| [explain](explain/) | Walks through agent-made code changes with rationale, trade-offs, alternatives, and understanding checks. |
-| [fast-wifi](fast-wifi/) | Diagnoses and improves slow macOS Wi-Fi and internet connections with measured before/after checks. |
-| [name-it](name-it/) | Structured naming methodology for brands, products, companies, projects, and creative endeavors. |
-| [search-x](search-x/) | Finds remembered X/Twitter posts by semantic fingerprint, even when exact wording or examples are wrong. |
-| [spec-writer](spec-writer/) | Converts research reports into implementation-ready technical specifications. |
-| [spring-cleaning](spring-cleaning/) | Generates a safe Mac disk-space cleanup runbook from a real storage report. |
-| [transcribe-yt](transcribe-yt/) | Saves YouTube video and podcast transcripts as local Markdown through usetranscribe.io. |
-| [vibe-security-audit](vibe-security-audit/) | Audits and fixes security vulnerabilities in AI-assisted "vibe-coded" apps. |
-| [x-article-to-markdown](x-article-to-markdown/) | Converts X/Twitter posts, articles, and threads into Markdown archives with local media assets. |
-| [xray](xray/) | X-rays a YC vertical from the Startups.RIP database — trends, failure patterns, rebuild candidates — then generates a data-journalism page via data-storytelling. |
+Each standalone plugin keeps its canonical skill under `skills/<name>/`. Copy or symlink that folder into a Codex skill directory:
+
+```bash
+mkdir -p ~/.agents/skills
+ln -s /path/to/agent-skills/save2md/skills/save2md ~/.agents/skills/save2md
+```
+
+Restart Claude Code or Codex, or start a fresh task, after installing or updating skills.

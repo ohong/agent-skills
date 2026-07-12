@@ -1,4 +1,0 @@
-interface:
-  display_name: "X Article to Markdown"
-  short_description: "Archive X articles as Markdown"
-  default_prompt: "Use $x-article-to-markdown to turn this X article URL into a clean Markdown file with local media assets."

@@ -1,0 +1,8 @@
+{
+  "name": "name-it",
+  "version": "0.1.0",
+  "description": "Run a structured brand or product naming and validation process.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

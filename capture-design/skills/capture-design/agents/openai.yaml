@@ -1,0 +1,4 @@
+interface:
+  display_name: "Capture Design"
+  short_description: "Save visual references as a design system"
+  default_prompt: "Use $capture-design to preserve these references as a reusable design-system swipefile."

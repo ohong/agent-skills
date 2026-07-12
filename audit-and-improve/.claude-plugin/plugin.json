@@ -1,7 +1,7 @@
 {
   "name": "audit-and-improve",
-  "description": "Deeply analyze a repository and produce an honest, evidence-based, severity-rated audit plus a prioritized improvement plan (Repo Map → Audit → Strategy → Task Plan). Analysis-only; offers to execute the plan afterward.",
-  "version": "0.1.0",
+  "description": "Evidence-based repository audit and prioritized improvement plan.",
+  "version": "0.1.1",
   "author": {
     "name": "Oscar Hong"
   },

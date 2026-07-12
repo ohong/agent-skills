@@ -1,0 +1,8 @@
+{
+  "name": "capture-design",
+  "version": "0.1.0",
+  "description": "Save reference visuals as a reusable design-system swipefile.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

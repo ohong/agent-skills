@@ -1,0 +1,8 @@
+{
+  "name": "post-walk",
+  "version": "0.1.1",
+  "description": "Turn an Apple Voice Memo into project notes, tasks, todos, and drafts.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

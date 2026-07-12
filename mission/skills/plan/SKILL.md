@@ -44,7 +44,7 @@ Before planning, build your orientation. Ask 3-7 focused questions covering:
 Boyd's orientation has five inputs. Map them:
 
 1. **Project conventions** (cultural traditions) — Read `CLAUDE.md`, `README.md`, `package.json` / `pyproject.toml`. What are the team's norms?
-2. **Existing architecture** (previous experience) — Use subagents (`Agent` tool with `subagent_type: Explore`) to map the relevant codebase. This keeps heavy exploration out of your context.
+2. **Existing architecture** (previous experience) — Map the relevant codebase with focused reads. Use subagents only when the user requests them or the work has genuinely independent, parallel branches.
 3. **New information** — What did the user tell you? What did you discover that wasn't obvious?
 4. **Build/test/lint commands** — Identify the verification tools. These are how reality will talk to you.
 5. **Analysis & synthesis** — Does the task fit cleanly into the existing architecture, or does something need to change? If there's tension, name it now.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Transcribe YouTube"
-  short_description: "Save YouTube transcripts as Markdown"
-  default_prompt: "Use $transcribe-yt to save a YouTube or podcast transcript as Markdown."

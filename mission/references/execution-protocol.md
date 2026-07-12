@@ -31,7 +31,7 @@ Build your orientation:
 Apply Boyd's implicit/explicit split:
 
 - **Familiar pattern** (standard CRUD, common test setup, well-known library): Act with implicit guidance. Move decisively. Don't over-deliberate on solved problems.
-- **Novel situation** (unfamiliar architecture, unexpected behavior, complex integration): Deliberate explicitly. Explore with subagents. Read more code. Think before acting. Slowing down here saves time downstream.
+- **Novel situation** (unfamiliar architecture, unexpected behavior, complex integration): Deliberate explicitly. Read more code. Think before acting. Slowing down here saves time downstream.
 
 The milestone's acceptance criteria tell you the goal. How you get there is your call — this is *Auftragstaktik* (mission-type orders). The plan specifies intent, not scripts.
 
@@ -134,5 +134,5 @@ If destruction and creation doesn't resolve it:
 2. **Re-read files before editing.** Disk is ground truth; your memory is a stale cache.
 3. **Progress lives in `.mission/progress.md`.** Update after every milestone. Read before every milestone.
 4. **After `/clear`, you lose nothing.** Plan, progress, learnings, and code are all on disk. The files carry your orientation forward.
-5. **Delegate exploration to subagents.** Heavy file reads bloat your context. Subagents keep exploration isolated.
+5. **Use subagents only when justified.** Prefer focused direct reads; delegate only when explicitly requested or when independent parallel work repays the handoff cost.
 6. **Recency-anchor the current task.** Read background files first, then the current milestone details last. LLMs attend most strongly to the end of context.

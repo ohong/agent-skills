@@ -1,4 +1,0 @@
-interface:
-  display_name: "Archive Article to Markdown"
-  short_description: "Archive article URLs as clean Markdown files"
-  default_prompt: "Use $archive-article-to-markdown to archive this article URL through archive.ph and save the main content as Markdown."

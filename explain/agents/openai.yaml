@@ -1,4 +1,0 @@
-interface:
-  display_name: "Explain"
-  short_description: "Understand agent-made code changes"
-  default_prompt: "Use $explain to walk me through the agent-made changes in this project, including rationale, trade-offs, and alternate approaches."

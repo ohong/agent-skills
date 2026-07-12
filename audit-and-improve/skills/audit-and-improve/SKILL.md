@@ -1,18 +1,9 @@
 ---
 name: audit-and-improve
-description: >
-  Deeply analyze a repository and produce an honest, evidence-based audit plus a
-  prioritized, actionable improvement plan. Trigger this skill whenever the user
-  asks to audit, review, assess, or "improve" a codebase; wants a health check,
-  tech-debt assessment, or "where are the problems in this repo"; asks for a
-  refactor plan, modernization plan, or remediation roadmap; or hands over a
-  project (especially an inherited, AI-generated, or legacy one) and asks "what's
-  wrong with this" or "what should I fix first". Works in any AI coding agent
-  (Claude Code, Codex, Cursor, etc.) — it relies only on reading files, searching
-  the codebase, and running read-only shell commands. The audit phase NEVER
-  modifies code; it ends by offering to execute the plan as a separate, opt-in
-  step. For a security-only review of a BaaS-backed app that also applies
-  fixes, use vibe-security-audit instead.
+description: >-
+  Audit a repository and produce an evidence-backed health report with a
+  prioritized improvement plan. Use only for an explicitly requested broad
+  codebase audit, tech-debt assessment, or remediation roadmap.
 user-invokable: true
 args:
   - name: target

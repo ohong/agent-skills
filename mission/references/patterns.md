@@ -39,7 +39,7 @@ Effective agents build a fresh, focused context for each step rather than draggi
 **Practice:**
 - At each milestone start, re-read: plan file, progress file, relevant source files
 - Don't rely on what you "remember" from earlier milestones
-- Use subagents for exploratory file reads (their context doesn't bloat yours)
+- Use focused direct reads; use subagents only when explicitly requested or clearly worthwhile
 - After `/clear`, load only what the current milestone needs
 
 ### P3: Recency Anchor Your Current Task

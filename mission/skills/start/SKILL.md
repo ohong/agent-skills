@@ -40,7 +40,7 @@ Each milestone follows the OODA cycle:
 
 ### Decide (or act implicitly)
 - **Familiar pattern?** Act directly. Standard CRUD, common test setup, well-known library usage — move with implicit guidance.
-- **Novel situation?** Deliberate explicitly. Unfamiliar architecture, unexpected file structure, complex integration — slow down, explore with subagents, think before acting.
+- **Novel situation?** Deliberate explicitly. Unfamiliar architecture, unexpected file structure, complex integration — slow down, read the relevant code, and think before acting.
 
 ### Act
 - Write code, staying scoped to THIS milestone only
@@ -70,7 +70,7 @@ When acceptance criteria fail, Boyd's principle applies: **don't retry blindly. 
 ## Context Management
 
 - **After completing a milestone**, if the conversation is long (20+ minutes of work, many file reads): recommend `/clear` → `/mission:continue`. Fresh context is forced reorientation — a feature, not a bug.
-- **Delegate heavy exploration** to subagents. Their reads don't bloat your context.
+- **Use subagents sparingly.** Delegate only when the user requests it or independent parallel work clearly repays the coordination cost.
 - **Keep the current milestone freshest in context.** Read background files first, then the current milestone details last. LLMs attend most strongly to the end of context (recency anchor).
 
 ## Key Rules
