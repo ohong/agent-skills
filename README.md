@@ -24,6 +24,16 @@ Add the marketplace, then install the plugins you want:
 | [save2md](save2md/) | Saves articles, X posts, and YouTube transcripts as local Markdown. |
 | [search-x](search-x/) | Finds a remembered X post from fuzzy clues and verifies it live. |
 
+## Standalone skills
+
+| Skill | Description |
+|---|---|
+| [delegate](delegate/) | Delegates substantial work through a structured multi-agent implementation and review loop. |
+| [explain](explain/) | Produces teaching-oriented explanations of code and changes. |
+| [press-release-faq](press-release-faq/) | Writes an Amazon-style Working Backwards PR/FAQ grounded in the current project. |
+| [spring-cleaning](spring-cleaning/) | Produces a measured, prioritized runbook for safely freeing disk space on a Mac. |
+| [vibe-security-audit](vibe-security-audit/) | Audits application security risks across authentication, data, and deployment boundaries. |
+
 ## Codex
 
 Each standalone plugin keeps its canonical skill under `skills/<name>/`. Copy or symlink that folder into a Codex skill directory:

@@ -1,0 +1,47 @@
+{
+  "skill_name": "vibe-security-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Help me set up a Supabase database for my new social app. I need tables for users, posts, and direct messages. Here's my migration so far:\n\nCREATE TABLE profiles (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id UUID REFERENCES auth.users(id),\n  username TEXT UNIQUE,\n  avatar_url TEXT\n);\n\nCREATE TABLE posts (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  author_id UUID REFERENCES profiles(id),\n  content TEXT,\n  created_at TIMESTAMPTZ DEFAULT now()\n);\n\nCREATE TABLE direct_messages (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  sender_id UUID REFERENCES profiles(id),\n  recipient_id UUID REFERENCES profiles(id),\n  content TEXT,\n  created_at TIMESTAMPTZ DEFAULT now()\n);",
+      "expected_output": "The skill should flag all three tables as missing RLS and provide corrected migrations with RLS enabled and appropriate policies for each table. DMs should only be readable by sender and recipient.",
+      "files": [],
+      "assertions": [
+        "Flags missing Row Level Security on all three tables as CRITICAL",
+        "Adds ALTER TABLE ... ENABLE ROW LEVEL SECURITY for each table",
+        "Creates RLS policies that use auth.uid() for access control",
+        "DM policies restrict access to sender_id and recipient_id only",
+        "Posts table has a public-read or authenticated-read policy",
+        "Mentions the Moltbook breach or a real-world example of why RLS matters"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm building a Next.js app that uses OpenAI. Here's my component:\n\nimport OpenAI from 'openai';\n\nconst openai = new OpenAI({\n  apiKey: 'sk-proj-abc123def456ghi789',\n});\n\nexport default function ChatPage() {\n  async function handleSubmit(prompt) {\n    const res = await openai.chat.completions.create({\n      model: 'gpt-4',\n      messages: [{ role: 'user', content: prompt }],\n    });\n    return res.choices[0].message.content;\n  }\n\n  return <div>...</div>;\n}",
+      "expected_output": "The skill should flag the hardcoded OpenAI API key in client-side code as CRITICAL, explain it's visible to anyone in the browser, and provide a fix that moves the API call to a server-side API route.",
+      "files": [],
+      "assertions": [
+        "Flags the hardcoded OpenAI API key as a CRITICAL vulnerability",
+        "Explains the key is visible in the browser/client bundle",
+        "Provides a server-side API route (e.g., app/api/chat/route.ts) as the fix",
+        "The fix uses process.env.OPENAI_API_KEY without a NEXT_PUBLIC_ prefix",
+        "Mentions .env should be in .gitignore",
+        "Does NOT just say 'use an environment variable' in the client component — moves the call server-side"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can you write a Supabase Edge Function that lets users store their API keys for different AI services? I want them to be able to save their OpenAI key, Anthropic key, etc. and then use them through my platform.",
+      "expected_output": "The skill should warn about storing third-party API keys, recommend encryption if storage is necessary, and ensure the edge function validates authentication. Should suggest alternatives to storing keys.",
+      "files": [],
+      "assertions": [
+        "Warns about the risks of storing third-party API keys (references cascading breach risk)",
+        "Suggests alternatives to storing keys (OAuth, proxy with platform key, in-memory only)",
+        "If it does store keys, encrypts them at rest (not plaintext)",
+        "The edge function requires JWT authentication (verify_jwt: true or manual auth check)",
+        "RLS policies ensure users can only access their own stored keys",
+        "Mentions that plaintext key storage is what made the Moltbook breach cascade to other services"
+      ]
+    }
+  ]
+}
