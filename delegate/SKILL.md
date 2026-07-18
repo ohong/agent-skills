@@ -1,100 +1,58 @@
 ---
 name: delegate
-description: Run the Planner→Generator→Evaluator loop — Claude (Fable) specs the work, Codex GPT-5.5 implements it, an Opus 4.8 subagent grades the result against the spec. Use for implementation tasks big enough to spec — new features, refactors, migrations, bulk mechanical changes. Not for small edits (<~30 lines) or pure judgment tasks; do those directly.
+description: Hand implementation work to Codex workers once planning is done. Invoke when Claude (Fable) has a plan/spec ready and is about to start coding — Fable specs and reviews, Codex implements. Skip for small edits (<~30 lines) or pure judgment tasks.
 ---
 
-# Delegate: Planner → Generator → Evaluator
+# Delegate
 
-You (Claude, the main loop) are the **Planner** — a product-minded tech lead. You decide architecture and scope, write the spec, answer questions, and hold final judgment. Codex (GPT-5.5 @ xhigh, the user's Codex default) is the **Generator**. An Opus 4.8 subagent is the **Evaluator**. You never hand-write the bulk implementation yourself in this flow.
+Three roles:
 
-## Step 0 — Triage
+| Role | Model | Job |
+|---|---|---|
+| **General** (you, main loop) | Fable 5 | Plan, spec, orchestrate, advise — answer workers' questions when they're stuck or need a product/technical direction call; final judgment on what ships |
+| **Workhorse** | Codex gpt-5.6 Sol, **medium** effort | Bulk of code generation: features, refactors, migrations, token-hungry work |
+| **Fast worker** | Codex gpt-5.6 Luna, **high** effort | Tightly scoped grunt work: quick edits, surveys, file ops, running checks, repo chores |
 
-- If the task is trivial (roughly under 30 lines of change, or faster to do than to spec): skip delegation, do it directly, and tell the user why.
-- If scope is genuinely ambiguous (the user's decision, not yours), ask 1–3 extremely concise questions before speccing.
-- Note whether the working tree is dirty (`git status`) so Codex's changes stay distinguishable. Do not commit anything unless the user asked.
+Never gpt-5.5. Delegate for scale and context isolation, not "smarter" thinking. Treat the Workhorse as a peer engineer: specs state the goal and the why, not step-by-step instructions.
 
-## Step 1 — Write the spec (Planner)
+## 1 — Spec
 
-Write the spec to a file in the scratchpad directory (e.g. `<scratchpad>/spec.md`). Prompt Codex like an operator, not a collaborator — compact XML blocks:
+Triage first: trivial (<~30 lines, or faster to do than spec) → do it yourself and say why. Ambiguous scope that's the user's call → ask 1–3 concise questions first. Note `git status` so worker changes stay distinguishable; commit nothing unless asked.
+
+Write the spec to `<scratchpad>/spec.md` as compact XML blocks:
 
 ```xml
-<task>
-One concrete job. Goal, relevant repo context, key files.
-</task>
-
-<scope>
-In scope: ...
-Out of scope: ... (be explicit — this is where scope creep dies)
-</scope>
-
-<implementation_notes>
-Architecture decisions already made, interfaces to conform to,
-patterns to follow from the existing codebase.
-</implementation_notes>
-
-<acceptance_criteria>
-Numbered, testable criteria. These are what the Evaluator grades against.
-</acceptance_criteria>
-
-<verification_loop>
-Exact commands to run before declaring done (tests, typecheck, lint, build).
-Do not report success without running them.
-</verification_loop>
-
-<action_safety>
-Stay narrow. No unrelated refactors, no dependency additions unless specified,
-no commits. Leave the working tree uncommitted.
-</action_safety>
-
-<escalation_contract>
-If you are blocked, or face a decision that changes architecture, scope, or
-public interfaces — do NOT guess. Stop and print a block starting with
-"QUESTIONS:" listing each question and the options you considered, then end
-your turn.
-</escalation_contract>
-
-<output_contract>
-End with: files touched, what was verified (commands + results), and any
-residual risks. If you printed QUESTIONS, output nothing else after it.
-</output_contract>
+<task>One concrete job: goal, repo context, key files.</task>
+<scope>In: ... Out: ... (explicit — this is where scope creep dies)</scope>
+<implementation_notes>Decisions already made; interfaces and patterns to conform to.</implementation_notes>
+<acceptance_criteria>Numbered, testable.</acceptance_criteria>
+<verification_loop>Exact commands to run before declaring done.</verification_loop>
+<action_safety>Stay narrow. No unrelated refactors, no new deps unless specified, no commits.</action_safety>
+<escalation_contract>If blocked, or facing a decision that changes architecture, scope, or
+public interfaces — do NOT guess. Print a "QUESTIONS:" block with options considered, then stop.</escalation_contract>
+<output_contract>End with: files touched, what was verified (commands + results), residual risks.</output_contract>
 ```
 
-## Step 2 — Run Codex (Generator)
+## 2 — Run Codex
 
-Resolve the companion runtime: list `~/.claude/plugins/cache/openai-codex/codex/` and use the highest version's `scripts/codex-companion.mjs`. Then:
+Resolve the companion runtime (highest version under `~/.claude/plugins/cache/openai-codex/codex/`, `scripts/codex-companion.mjs`), then:
 
 ```bash
-node "<companion>" task --write --prompt-file "<scratchpad>/spec.md"
+node "<companion>" task --write --prompt-file "<scratchpad>/spec.md" \
+  -c model="gpt-5.6-sol" -c model_reasoning_effort="medium"   # Workhorse; omit -c flags for Fast worker (config.toml default is luna/high)
 ```
 
-- Bounded task → run foreground with a generous Bash timeout (600000).
-- Long/open-ended task → add `--background`, then use the `status <jobId> --wait` and `result <jobId>` subcommands.
-- If the companion runtime is missing, fall back to `codex exec --sandbox workspace-write "$(cat <spec-file>)"`.
-- Model and effort are already gpt-5.5 @ xhigh via the user's `~/.codex/config.toml` — don't pass `--model`/`--effort` unless overriding deliberately.
+- Bounded task → foreground with a generous Bash timeout (600000).
+- Long/open-ended → the companion's own `--background` flag from a **foreground** Bash call — never a foreground companion inside a harness `run_in_background` shell (process tree gets SIGKILLed; bugs #432/#222). Wait with one `status <jobId> --wait --timeout-ms N` background call, never `while/sleep` loops; treat long-elapsed `running` as possibly stale; `result <jobId>` fetches output.
+- Companion missing → fall back to `codex exec --sandbox workspace-write "$(cat <spec-file>)"`.
+- Avoid the `codex:codex-rescue` agent (stub/orphan bugs #324/#395/#486). Prompt per the plugin's `gpt-5-4-prompting` skill.
 
-## Step 3 — Answer questions (advisor protocol)
+## 3 — Advise
 
-If the output contains a `QUESTIONS:` block:
-1. Answer each question yourself using your judgment as tech lead. Only surface to the user questions that are genuinely theirs (product direction, irreversible choices).
-2. Resume the same thread with just the answers:
-   ```bash
-   node "<companion>" task --resume-last "Answers: ..."
-   ```
-Repeat as needed. Keep answers as deltas — don't restate the spec.
+On a `QUESTIONS:` block: answer with your judgment as tech lead; surface only genuinely user-level questions (product direction, irreversible choices) to Oscar. Resume the **same** thread with deltas only: `task --resume-last "Answers: ..."`.
 
-## Step 4 — Evaluate (Opus 4.8)
+## 4 — Review & close
 
-Spawn the Evaluator with the Agent tool, `model: "opus"`. Its prompt must include the full spec text and instructions to:
-- Inspect the actual diff (`git diff` / `git status`) — grade what exists, not what Codex claims.
-- Run the spec's verification commands.
-- Grade each acceptance criterion individually: pass/fail + evidence (file:line).
-- Return a final verdict: `PASS` or `FAIL`, with findings ordered by severity. No fixes — evaluation only.
+Review the actual diff against the acceptance criteria yourself — grade what exists, not what Codex claims; run the verification commands if the worker's evidence is thin. For substantial or high-stakes diffs, invoke the `/code-review` skill for an adversarial fresh-context review. On failure, feed findings verbatim into the same Codex thread (`--resume-last`); after 3 cycles, take over or surface the impasse. You are accountable for everything that ships.
 
-## Step 5 — Loop or close
-
-- **FAIL** → feed the Evaluator's findings verbatim into the same Codex thread (`task --resume-last`), then re-evaluate with a fresh Opus agent. Maximum 3 cycles; after that, fix the remainder yourself or surface the impasse to the user.
-- **PASS** → spot-check the diff yourself (you are accountable for what ships). Then report.
-
-## Step 6 — Report
-
-Tell the user: what was built, files changed, evaluator verdict and cycle count, questions that were escalated and how you answered them, and the Codex thread resume command (`codex resume <threadId>`, printed in the companion output) in case they want to continue in Codex directly.
+Report: what was built, files changed, review outcome and cycle count, escalated questions and your answers, and the `codex resume <threadId>` command for continuing in Codex directly.
