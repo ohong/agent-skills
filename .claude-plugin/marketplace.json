@@ -30,6 +30,17 @@
       "category": "design"
     },
     {
+      "name": "distill-taste",
+      "source": "./distill-taste",
+      "description": "Distill a person's publicly shared taste into an ask-<person> advisor skill.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["taste", "persona", "feedback", "research"],
+      "category": "workflow"
+    },
+    {
       "name": "fast-wifi",
       "source": "./fast-wifi",
       "description": "Diagnose macOS Wi-Fi and internet problems with measured checks.",

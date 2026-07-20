@@ -3,29 +3,33 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: transcribe.sh <audio-file> [output.txt]
+Usage: transcribe.sh [--speed FACTOR] <audio-file> [output.txt]
 
-Uses fal.ai Wizper (fal-ai/wizper). Requires FAL_KEY.
+Speeds audio up FACTORx with ffmpeg before sending to fal.ai Wizper,
+which bills per audio second. Default factor: $POST_WALK_SPEED or 2.5.
+--speed 1 uploads the audio unmodified (no ffmpeg needed).
+Requires FAL_KEY.
 USAGE
 }
 
-if [[ $# -eq 1 && ( "$1" == "-h" || "$1" == "--help" ) ]]; then
-  usage
-  exit 0
-fi
+SPEED="${POST_WALK_SPEED:-2.5}"
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help) usage; exit 0 ;;
+    --speed) [[ $# -ge 2 ]] || { echo "ERROR: --speed needs a value" >&2; exit 64; }
+             SPEED="$2"; shift 2 ;;
+    --speed=*) SPEED="${1#*=}"; shift ;;
+    -*) echo "ERROR: unknown option: $1" >&2; usage; exit 64 ;;
+    *) POSITIONAL+=("$1"); shift ;;
+  esac
+done
+set -- ${POSITIONAL[@]+"${POSITIONAL[@]}"}
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   usage
   exit 64
 fi
-
-case "$1" in
-  -*)
-    echo "ERROR: unknown option: $1" >&2
-    usage
-    exit 64
-    ;;
-esac
 
 AUDIO_FILE="${1/#\~/$HOME}"
 OUTPUT_FILE="${2:-${AUDIO_FILE%.*}.transcript.txt}"
@@ -47,6 +51,46 @@ cleanup() {
   rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
+
+# Validate SPEED and build an ffmpeg atempo chain (atempo caps at 2.0 per
+# filter, so larger factors are chained). Prints "PASSTHROUGH" for speed 1.
+ATEMPO_CHAIN="$(python3 - "$SPEED" <<'PY'
+import sys
+try:
+    s = float(sys.argv[1])
+except ValueError:
+    sys.exit(f"ERROR: speed factor must be a number, got: {sys.argv[1]}")
+if not 1.0 <= s <= 20.0:
+    sys.exit(f"ERROR: speed factor must be between 1 and 20, got: {s}")
+if s == 1.0:
+    print("PASSTHROUGH")
+    sys.exit(0)
+parts = []
+while s > 2.0:
+    parts.append(2.0)
+    s /= 2.0
+parts.append(s)
+print(",".join(f"atempo={p:g}" for p in parts))
+PY
+)" || { echo "$ATEMPO_CHAIN" >&2; exit 64; }
+
+if [[ "$ATEMPO_CHAIN" == "PASSTHROUGH" ]]; then
+  UPLOAD_FILE="$AUDIO_FILE"
+  content_type="audio/mp4"
+  case "${AUDIO_FILE##*.}" in
+    mp3|mpga) content_type="audio/mpeg" ;;
+    wav) content_type="audio/wav" ;;
+    webm) content_type="audio/webm" ;;
+  esac
+else
+  command -v ffmpeg >/dev/null 2>&1 || { echo "ERROR: ffmpeg is required to speed up audio (or use --speed 1)." >&2; exit 69; }
+  UPLOAD_FILE="$TMP_DIR/sped.m4a"
+  ffmpeg -nostdin -hide_banner -loglevel error -y \
+    -i "$AUDIO_FILE" -filter:a "$ATEMPO_CHAIN" -ac 1 -c:a aac -b:a 64k \
+    "$UPLOAD_FILE" || { echo "ERROR: ffmpeg speed-up failed." >&2; exit 1; }
+  content_type="audio/mp4"
+  echo "Sped up ${SPEED}x for transcription." >&2
+fi
 
 strip_assignment_value() {
   local line="$1"
@@ -117,20 +161,13 @@ json_field() {
 
 require_key "FAL_KEY"
 
-content_type="audio/mp4"
-case "${AUDIO_FILE##*.}" in
-  mp3|mpga) content_type="audio/mpeg" ;;
-  wav) content_type="audio/wav" ;;
-  webm) content_type="audio/webm" ;;
-esac
-
-# 1. Upload the local file to fal storage (Wizper only accepts URLs).
+# 1. Upload the (sped-up) file to fal storage (Wizper only accepts URLs).
 init="$TMP_DIR/initiate.json"
 curl --silent --show-error --fail-with-body \
   -X POST "https://rest.alpha.fal.ai/storage/upload/initiate?storage_type=fal-cdn-v3" \
   -H "Authorization: Key ${FAL_KEY}" \
   -H "Content-Type: application/json" \
-  -d "{\"content_type\": \"${content_type}\", \"file_name\": \"$(basename "$AUDIO_FILE")\"}" \
+  -d "{\"content_type\": \"${content_type}\", \"file_name\": \"$(basename "$UPLOAD_FILE")\"}" \
   -o "$init" || fail "fal storage initiate failed." "$init"
 
 upload_url="$(json_field "$init" upload_url)" || fail "no upload_url in initiate response." "$init"
@@ -139,7 +176,7 @@ file_url="$(json_field "$init" file_url)" || fail "no file_url in initiate respo
 curl --silent --show-error --fail \
   -X PUT "$upload_url" \
   -H "Content-Type: ${content_type}" \
-  --upload-file "$AUDIO_FILE" \
+  --upload-file "$UPLOAD_FILE" \
   -o /dev/null || fail "fal storage upload PUT failed."
 
 # 2. Queue the transcription and poll (long memos exceed sync timeouts).

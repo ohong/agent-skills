@@ -17,6 +17,7 @@ Add the marketplace, then install the plugins you want:
 |---|---|
 | [audit-and-improve](audit-and-improve/) | Audits a repository and produces a prioritized improvement plan. |
 | [capture-design](capture-design/) | Saves reference visuals as a reusable design-system swipefile. |
+| [distill-taste](distill-taste/) | Distills a person's publicly shared taste into an ask-* advisor skill. |
 | [fast-wifi](fast-wifi/) | Diagnoses macOS Wi-Fi and internet problems with measured checks. |
 | [mission](mission/) | Runs file-backed milestone planning and execution for long-horizon work. |
 | [name-it](name-it/) | Runs a structured brand or product naming and validation process. |
