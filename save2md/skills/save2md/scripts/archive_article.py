@@ -181,6 +181,13 @@ def slugify(value: str, fallback: str = "article") -> str:
     return value[:96] or fallback
 
 
+def title_filename(title: str) -> str:
+    """Return a readable, filesystem-safe Markdown filename from an article title."""
+    filename = re.sub(r'[<>:"/\\|?*\x00-\x1f]', " - ", title)
+    filename = re.sub(r"\s+", " ", filename).strip(" .-")
+    return f"{filename[:180] or 'Article Archive'}.md"
+
+
 def normalize_url(url: str) -> str:
     url = url.strip()
     if not url:
@@ -630,7 +637,7 @@ def main() -> int:
         if not markdown:
             raise FetchError("no article content extracted")
         if is_bad_article_text(markdown):
-            warnings.append("Extracted content may be short, noisy, or paywall-limited; inspect article.md.")
+            warnings.append("Extracted content may be short, noisy, or paywall-limited; inspect the generated Markdown file.")
 
         title = metadata.get("title") or title_from_url(source_url or archive_url or input_url)
         article = render_article(
@@ -642,7 +649,7 @@ def main() -> int:
             metadata=metadata,
             warnings=warnings,
         )
-        article_path = out_dir / "article.md"
+        article_path = out_dir / title_filename(title)
         article_path.write_text(article, encoding="utf-8")
         write_json(
             out_dir / "source.json",

@@ -15,7 +15,7 @@ python3 scripts/archive_article.py \
 When the user does not specify a destination, create a URL-derived folder under the shared article library and pass it with `--out-dir`:
 
 ```text
-~/Documents/Saved Articles/Web/<article-slug>/article.md
+~/Documents/Saved Articles/Web/<article-slug>/<article-title>.md
 ```
 
 If the user already provides an archive.ph URL, pass it directly:
@@ -38,7 +38,7 @@ python3 scripts/archive_article.py \
 ## Workflow
 
 1. Run `scripts/archive_article.py` with the user-provided URL and resolved output directory.
-2. Inspect the generated `article.md` before responding.
+2. Inspect the generated title-named Markdown file before responding.
 3. If the script reports an archive.ph captcha/security challenge:
    - Do not ask the user what to do.
    - Use Browser or Chrome to open the archive URL if available, complete only user-authorized visible navigation, save the page HTML if accessible, then rerun with `--html-file`.
@@ -49,11 +49,11 @@ python3 scripts/archive_article.py \
 
 Each successful run should produce:
 
-- `article.md`: title, source URL, archive URL when known, extraction metadata, and cleaned article content.
+- `<article-title>.md`: title, source URL, archive URL when known, extraction metadata, and cleaned article content. The filename must use a filesystem-safe version of the extracted title, not `article.md`.
 - `source.json`: extraction metadata, fetch path, warnings, and output paths.
 - `source.html` or `reader.md`: saved diagnostics when the helper fetched useful source material or hit an access challenge.
 
-Keep the final answer short and include the absolute path to `article.md`.
+Keep the final answer short and include the absolute path to the title-named Markdown file.
 
 ## Useful Options
 
