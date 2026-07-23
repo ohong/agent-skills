@@ -1,0 +1,8 @@
+{
+  "name": "fieldtheory-research",
+  "version": "0.1.0",
+  "description": "Search, export, and analyze local Field Theory X bookmarks.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Field Theory Research"
+  short_description: "Research and export local X bookmarks"
+  default_prompt: "Use $fieldtheory-research to search my Field Theory bookmarks and produce a verified research export."

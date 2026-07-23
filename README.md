@@ -19,6 +19,7 @@ Add the marketplace, then install the plugins you want:
 | [capture-design](capture-design/) | Saves reference visuals as a reusable design-system swipefile. |
 | [distill-taste](distill-taste/) | Distills a person's publicly shared taste into an ask-* advisor skill. |
 | [fast-wifi](fast-wifi/) | Diagnoses macOS Wi-Fi and internet problems with measured checks. |
+| [fieldtheory-research](fieldtheory-research/) | Searches, exports, and analyzes local X bookmarks with preserved provenance. |
 | [mission](mission/) | Runs file-backed milestone planning and execution for long-horizon work. |
 | [name-it](name-it/) | Runs a structured brand or product naming and validation process. |
 | [post-walk](post-walk/) | Turns an Apple Voice Memo into project notes, tasks, todos, and drafts. |
