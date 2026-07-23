@@ -1,0 +1,8 @@
+{
+  "name": "repo-now",
+  "version": "0.1.0",
+  "description": "Produce a grounded read-only briefing on a repository's current state and next actions.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

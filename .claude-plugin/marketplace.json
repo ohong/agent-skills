@@ -96,6 +96,17 @@
       "category": "productivity"
     },
     {
+      "name": "repo-now",
+      "source": "./repo-now",
+      "description": "Produce a read-only briefing on a repository's current state and next actions.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["git", "status", "planning", "orientation"],
+      "category": "workflow"
+    },
+    {
       "name": "save2md",
       "source": "./save2md",
       "description": "Save articles, X posts, and YouTube transcripts as local Markdown.",

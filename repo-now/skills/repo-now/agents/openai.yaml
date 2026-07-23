@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repo Now"
+  short_description: "Brief the current repository and next actions"
+  default_prompt: "Use $repo-now to tell me what this repository is, what is outstanding, and what to work on next."

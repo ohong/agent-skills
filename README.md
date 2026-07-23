@@ -23,6 +23,7 @@ Add the marketplace, then install the plugins you want:
 | [mission](mission/) | Runs file-backed milestone planning and execution for long-horizon work. |
 | [name-it](name-it/) | Runs a structured brand or product naming and validation process. |
 | [post-walk](post-walk/) | Turns an Apple Voice Memo into project notes, tasks, todos, and drafts. |
+| [repo-now](repo-now/) | Produces a read-only briefing on a repository's current state and next actions. |
 | [save2md](save2md/) | Saves articles, X posts, and YouTube transcripts as local Markdown. |
 | [search-x](search-x/) | Finds a remembered X post from fuzzy clues and verifies it live. |
 
