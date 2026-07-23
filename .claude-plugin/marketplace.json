@@ -127,6 +127,17 @@
       "license": "MIT",
       "keywords": ["x", "twitter", "search"],
       "category": "productivity"
+    },
+    {
+      "name": "sync-well",
+      "source": "./sync-well",
+      "description": "Safely inspect and reconcile local Git work with its upstream.",
+      "version": "0.1.0",
+      "author": { "name": "Oscar Hong" },
+      "repository": "https://github.com/ohong/agent-skills",
+      "license": "MIT",
+      "keywords": ["git", "sync", "branches", "merge"],
+      "category": "workflow"
     }
   ]
 }

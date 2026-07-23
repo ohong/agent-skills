@@ -1,0 +1,8 @@
+{
+  "name": "sync-well",
+  "version": "0.1.0",
+  "description": "Inspect Git divergence and reconcile it without losing local work.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

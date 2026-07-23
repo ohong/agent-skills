@@ -26,6 +26,7 @@ Add the marketplace, then install the plugins you want:
 | [repo-now](repo-now/) | Produces a read-only briefing on a repository's current state and next actions. |
 | [save2md](save2md/) | Saves articles, X posts, and YouTube transcripts as local Markdown. |
 | [search-x](search-x/) | Finds a remembered X post from fuzzy clues and verifies it live. |
+| [sync-well](sync-well/) | Safely inspects and reconciles local Git work with its upstream. |
 
 ## Standalone skills
 

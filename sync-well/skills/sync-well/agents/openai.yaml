@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync Well"
+  short_description: "Safely inspect and reconcile Git divergence"
+  default_prompt: "Use $sync-well to inspect whether my local branch can safely sync with its upstream."
