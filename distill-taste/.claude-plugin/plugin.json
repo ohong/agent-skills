@@ -1,0 +1,8 @@
+{
+  "name": "distill-taste",
+  "version": "0.1.0",
+  "description": "Distill a person's publicly shared taste into a standalone ask-<person> advisor skill.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}

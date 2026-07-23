@@ -1,0 +1,4 @@
+interface:
+  display_name: "Distill Taste"
+  short_description: "Turn a person's public taste into an advisor skill"
+  default_prompt: "Use $distill-taste to research this person and build an ask-* advisor skill from their taste."
