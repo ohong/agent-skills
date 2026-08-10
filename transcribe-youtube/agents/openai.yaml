@@ -1,0 +1,4 @@
+interface:
+  display_name: "Transcribe YouTube"
+  short_description: "Turn YouTube links into transcripts"
+  default_prompt: "Use $transcribe-youtube to transcribe this YouTube video and return the local transcript path."

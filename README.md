@@ -36,6 +36,7 @@ Add the marketplace, then install the plugins you want:
 | [explain](explain/) | Produces teaching-oriented explanations of code and changes. |
 | [press-release-faq](press-release-faq/) | Writes an Amazon-style Working Backwards PR/FAQ grounded in the current project. |
 | [spring-cleaning](spring-cleaning/) | Produces a measured, prioritized runbook for safely freeing disk space on a Mac. |
+| [transcribe-youtube](transcribe-youtube/) | Transcribes YouTube links through usetranscribe.io and saves timestamped Markdown. |
 | [vibe-security-audit](vibe-security-audit/) | Audits application security risks across authentication, data, and deployment boundaries. |
 
 ## Codex
