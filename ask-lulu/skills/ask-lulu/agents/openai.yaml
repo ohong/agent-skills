@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ask Lulu"
+  short_description: "Feedback and advice in Lulu Cheng Meservey's voice"
+  default_prompt: "Use $ask-lulu to get Lulu Cheng Meservey's take on this."

@@ -1,0 +1,10 @@
+{
+  "name": "ask-lulu",
+  "version": "0.1.0",
+  "description": "Chat with a research-grounded model of Lulu Cheng Meservey's taste for feedback and advice.",
+  "author": {
+    "name": "Oscar Hong"
+  },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}
