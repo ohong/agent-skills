@@ -1,4 +1,4 @@
 interface:
   display_name: "Explain"
-  short_description: "Understand agent-made code changes"
-  default_prompt: "Use $explain to walk me through the agent-made changes in this project, including rationale, trade-offs, and alternate approaches."
+  short_description: "Understand what Codex did in a session"
+  default_prompt: "Use $explain to explain what Codex accomplished in this session, how the result works, why key choices were made, what was verified, and what remains."

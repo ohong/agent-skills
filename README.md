@@ -33,7 +33,7 @@ Add the marketplace, then install the plugins you want:
 | Skill | Description |
 |---|---|
 | [delegate](delegate/) | Delegates substantial work through a structured multi-agent implementation and review loop. |
-| [explain](explain/) | Produces teaching-oriented explanations of code and changes. |
+| [explain](explain/) | Explains session outcomes, key changes, decisions, verification, and unfinished work. |
 | [press-release-faq](press-release-faq/) | Writes an Amazon-style Working Backwards PR/FAQ grounded in the current project. |
 | [spring-cleaning](spring-cleaning/) | Produces a measured, prioritized runbook for safely freeing disk space on a Mac. |
 | [take-notes](take-notes/) | Saves transcript-only learnings, references, and full next prompts in one durable note per Codex session. |
