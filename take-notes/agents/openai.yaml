@@ -1,0 +1,4 @@
+interface:
+  display_name: "Take Notes"
+  short_description: "Save useful session material as project notes"
+  default_prompt: "Use $take-notes to save useful material from this session, including full prompts for later use."
