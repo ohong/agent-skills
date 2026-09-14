@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Mascot"
+  short_description: "Design expressive mascots with editable Blender rigs"
+  default_prompt: "Use $create-mascot to develop distinct mascot concepts for my project, then build my selected direction as an editable Blender asset."

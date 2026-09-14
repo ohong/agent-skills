@@ -1,0 +1,8 @@
+{
+  "name": "create-mascot",
+  "version": "0.1.0",
+  "description": "Design original expressive mascots and produce editable, animatable Blender assets.",
+  "author": { "name": "Oscar Hong" },
+  "repository": "https://github.com/ohong/agent-skills",
+  "license": "MIT"
+}
