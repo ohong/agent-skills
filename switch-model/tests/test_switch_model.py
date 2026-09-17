@@ -44,26 +44,41 @@ class SwitchingTests(unittest.TestCase):
         fixture = self.root / 'fake_fireconnect.py'
         fixture.write_text(r"""#!/usr/bin/env python3
 import json, os, pathlib, sys
-models = ['kimi-k3', 'glm-5p3', 'deepseek-v4p1-flash', 'new-model-99', 'minimax-m3', 'kimi-latest', 'kimi-fast-latest', 'glm-latest', 'glm-fast-latest', 'glm-flash-latest', 'deepseek-flash-latest', 'deepseek-pro-latest']
+# Mirrors FireConnect: `model list` shows every serverless id, the Codex catalog keeps one latest per family.
+LATEST = ['deepseek-flash-latest', 'deepseek-pro-latest', 'glm-5p2-fast-us', 'glm-5p3-flash-us', 'glm-fast-latest', 'glm-flash-latest', 'glm-latest', 'kimi-fast-latest', 'kimi-k3-us', 'kimi-latest', 'new-family-latest', 'minimax-latest']
+PINNED = ['kimi-k3', 'glm-5p3', 'deepseek-v4p1-flash', 'minimax-m3']
+
+
+def rows(names):
+    return [{'id': 'accounts/fireworks/' + ('routers/' if name.endswith('-latest') else 'models/') + name,
+             'shortId': name, 'displayName': name, 'kind': 'serverless', 'toolCalling': True,
+             'maxInputTokens': 100000, 'pricing': {'display': '$1 / $2'}} for name in names]
+
+
 if sys.argv[1] == 'model':
-    print(json.dumps({'source': 'network', 'models': [{'id': 'accounts/fireworks/' + ('routers/' if name.endswith('-latest') else 'models/') + name, 'shortId': name, 'displayName': name, 'kind': 'serverless', 'toolCalling': True, 'maxInputTokens': 100000} for name in models]}))
+    print(json.dumps({'source': 'network', 'models': rows(LATEST + PINNED)}))
 else:
-    folder = pathlib.Path(sys.argv[-2]) / '.codex'
-    slug = sys.argv[-1].split('/')[-1]
-    config = 'model = ' + json.dumps(slug) + '\nmodel_provider = "fireworks-ai"\nweb_search = "disabled"\nmodel_catalog_json = "fireworks-model-catalog.json"\n[model_providers.fireworks-ai]\nbase_url = "https://api.fireworks.ai/inference/v1"\nwire_api = "responses"\nexperimental_bearer_token = ' + json.dumps(os.environ['FIREWORKS_API_KEY']) + '\n'
-    (folder / 'config.toml').write_text(config)
-    catalog = {'models': [{'slug': name, 'context_window': 100000, 'default_reasoning_level': 'high', 'supported_reasoning_levels': [{'effort': 'low'}, {'effort': 'medium'}, {'effort': 'high'}]} for name in models]}
-    if os.environ.get('FAKE_CATALOG_FAILURE'):
-        catalog = {'models': []}
-    (folder / 'fireworks-model-catalog.json').write_text(json.dumps(catalog))
+    args = sys.argv[2:]
+    def flag(name):
+        return args[args.index(name) + 1] if name in args else None
+    home = pathlib.Path(flag('--home'))
+    config = pathlib.Path(flag('--config-path'))
+    config.parent.mkdir(parents=True, exist_ok=True)
+    reference = (flag('--model') or '').split('/')[-1]
+    config.write_text('model = ' + json.dumps(reference) + '\nmodel_provider = "fireworks-ai"\nweb_search = "disabled"\n'
+                      'model_catalog_json = "fireworks-model-catalog.json"\n[model_providers.fireworks-ai]\n'
+                      'base_url = "https://api.fireworks.ai/inference/v1"\nwire_api = "responses"\n'
+                      'experimental_bearer_token = ' + json.dumps(os.environ['FIREWORKS_API_KEY']) + '\n')
+    slugs = [] if os.environ.get('FAKE_CATALOG_FAILURE') else [n for n in LATEST if n != 'minimax-latest']
+    catalog = {'models': [{'slug': name, 'context_window': 100000, 'default_reasoning_level': 'high',
+                           'supported_reasoning_levels': [{'effort': 'low'}, {'effort': 'medium'},
+                                                          {'effort': 'high'}]} for name in slugs]}
+    (home / '.codex').mkdir(parents=True, exist_ok=True)
+    (home / '.codex/fireworks-model-catalog.json').write_text(json.dumps(catalog))
 """)
         fixture.chmod(0o700)
-        source = self.root / 'source/packages/setup-cli/lib/harnesses/codex'
-        source.mkdir(parents=True)
-        (source / 'catalog.mjs').touch()
         self.env = os.environ | {'FIREWORKS_API_KEY': 'test-only-never-sent', 'CODEX_HOME': str(self.root),
-                                 'FIRECONNECT_BIN': str(fixture), 'FIRECONNECT_NODE': str(fixture),
-                                 'FIRECONNECT_SOURCE': str(self.root / 'source')}
+                                 'FIRECONNECT_BIN': str(fixture)}
 
 
     def run_switch(self, *args, succeeds=True):
@@ -75,9 +90,9 @@ else:
         return tomllib.loads(self.config.read_text())
 
     def test_fireworks_preserves_unrelated_config_and_backups(self):
-        report = self.run_switch('kimi', 'k3')
+        report = self.run_switch('kimi')
         data = self.data()
-        self.assertEqual(data['model'], 'kimi-k3')
+        self.assertEqual(data['model'], 'kimi-latest')
         self.assertEqual(data['model_reasoning_effort'], 'high')
         self.assertEqual(data['model_providers']['grok'], tomllib.loads(ORIGINAL)['model_providers']['grok'])
         self.assertIn('# Keep this comment', self.config.read_text())
@@ -161,26 +176,43 @@ model = "gpt-real"
         report = self.run_switch('kimi')
         self.assertFalse(report['changed'])
 
-    def test_family_aliases_use_latest_and_versions_remain_pinned(self):
+    def test_family_aliases_use_the_latest_router_only(self):
         self.run_switch('kimi')
         self.assertEqual(self.data()['model'], 'kimi-latest')
-        self.run_switch('kimi', 'k3')
-        self.assertEqual(self.data()['model'], 'kimi-k3')
+        self.run_switch('kimi', 'fast')
+        self.assertEqual(self.data()['model'], 'kimi-fast-latest')
         self.run_switch('glm', 'flash')
         self.assertEqual(self.data()['model'], 'glm-flash-latest')
         self.run_switch('deepseek', 'pro')
         self.assertEqual(self.data()['model'], 'deepseek-pro-latest')
+        all_models = self.run_switch('--list')['models']
+        self.assertEqual([row['short_id'] for row in all_models if 'deepseek' in row['short_id']],
+                         ['deepseek-flash-latest', 'deepseek-pro-latest'])
+        self.run_switch('--effort', 'max', 'kimi')
+        self.assertEqual(self.data()['model_reasoning_effort'], 'max')
         self.run_switch('--effort', 'ultra', 'kimi', succeeds=False)
-        self.assertEqual(self.data()['model'], 'deepseek-pro-latest')
+        self.assertEqual(self.data()['model'], 'kimi-latest')
 
-    def test_dynamic_model_and_catalog_are_usable(self):
-        listing = self.run_switch('--list', '--search', 'new model')
-        self.assertEqual([m['id'] for m in listing['models']], ['accounts/fireworks/models/new-model-99'])
-        self.run_switch('new-model-99')
+    def test_catalog_holds_one_latest_entry_per_family(self):
+        listing = self.run_switch('--list', '--search', 'new family')
+        self.assertEqual([row['short_id'] for row in listing['models']], ['new-family-latest'])
+        self.run_switch('new-family-latest')
         catalog = json.loads(Path(self.data()['model_catalog_json']).read_text())
-        self.assertIn('new-model-99', [m['slug'] for m in catalog['models']])
-        self.assertNotIn('minimax-m3', [m['slug'] for m in catalog['models']])
+        slugs = [m['slug'] for m in catalog['models']]
+        self.assertIn('new-family-latest', slugs)
+        self.assertNotIn('minimax-latest', slugs)
+        self.assertNotIn('kimi-k3', slugs)
+        self.assertNotIn('deepseek-v4p1-flash', slugs)
         self.assertEqual(self.data()['web_search'], 'disabled')
+
+    def test_deep_tier_is_restored_when_fireconnect_omits_it(self):
+        self.run_switch('kimi')
+        catalog = json.loads(Path(self.data()['model_catalog_json']).read_text())
+        levels = {m['slug']: [l['effort'] for l in m['supported_reasoning_levels']] for m in catalog['models']}
+        self.assertEqual(levels['kimi-latest'], ['low', 'medium', 'high', 'max'])
+        self.assertEqual(levels['glm-latest'], ['low', 'medium', 'high', 'max'])
+        self.assertEqual(levels['deepseek-pro-latest'], ['low', 'medium', 'high', 'max'])
+        self.assertEqual(levels['new-family-latest'], ['low', 'medium', 'high'])
 
     def test_restore_catalog_search_and_intervening_edits(self):
         self.config.write_text('model_catalog_json = "/old/catalog.json"\nweb_search = "live"\n' + ORIGINAL)
@@ -195,6 +227,9 @@ model = "gpt-real"
 
     def test_incompatible_or_missing_metadata_never_writes(self):
         self.run_switch('minimax-m3', succeeds=False)
+        self.assertEqual(self.config.read_text(), ORIGINAL)
+        # A pinned id resolves in FireConnect's list but is absent from its Codex catalog.
+        self.run_switch('kimi', 'k3', succeeds=False)
         self.assertEqual(self.config.read_text(), ORIGINAL)
         self.env['FAKE_CATALOG_FAILURE'] = '1'
         self.run_switch('kimi', succeeds=False)

@@ -63,8 +63,8 @@ class Inventory:
                                 "available_bytes": usage.free}
         except OSError as exc:
             result["volume_error"] = str(exc)
-        # -P does not follow internal symlinks; absolute operands cannot become options.
-        command = self.run(["du", "-skP", str(path)])
+        # Stay on this filesystem and avoid symlink traversal or option-like operands.
+        command = self.run(["du", "-skPx", str(path)])
         if "error" in command:
             result["size_error"] = command
         else:
@@ -171,6 +171,7 @@ def main():
               "limitations": ["Sizes are not reclaimable bytes; no aggregate total is calculated.",
                               "Inputs and worktrees can overlap; APFS/shared blocks and snapshots affect recovery.",
                               "Symlink paths are refused; du does not follow internal symlinks.",
+                              "du skips nested filesystems; directory estimates exclude their contents.",
                               "Activity, remote freshness, backups, and recoverability remain unknown.",
                               "Git refs are local branches and tags; own branch is excluded; no fetch occurs.",
                               "Status is not a recursive submodule audit and evidence can change after inspection.",

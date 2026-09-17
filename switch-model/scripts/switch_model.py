@@ -19,21 +19,15 @@ from fireworks_connect import prepare as prepare_fireworks
 ROOT_KEYS = ('model', 'model_provider', 'model_reasoning_effort', 'model_catalog_json', 'web_search')
 FIREWORKS_BASE = 'https://api.fireworks.ai/inference/v1'
 ALIASES = {
+    # FireConnect exposes one latest router per family; pinned versions are not listed.
     'kimi': 'accounts/fireworks/routers/kimi-latest',
     'kimi fast': 'accounts/fireworks/routers/kimi-fast-latest',
-    'kimi k3': 'accounts/fireworks/models/kimi-k3',
-    'kimi k3 fast': 'accounts/fireworks/routers/kimi-k3-fast',
     'glm': 'accounts/fireworks/routers/glm-latest',
     'glm fast': 'accounts/fireworks/routers/glm-fast-latest',
     'glm flash': 'accounts/fireworks/routers/glm-flash-latest',
-    'glm 5.3': 'accounts/fireworks/models/glm-5p3',
-    'glm 5.3 flash': 'accounts/fireworks/models/glm-5p3-flash',
-    'glm 5.3 fast': 'accounts/fireworks/routers/glm-5p3-fast',
     'deepseek': 'accounts/fireworks/routers/deepseek-flash-latest',
     'deepseek flash': 'accounts/fireworks/routers/deepseek-flash-latest',
     'deepseek pro': 'accounts/fireworks/routers/deepseek-pro-latest',
-    'deepseek v4.1 flash': 'accounts/fireworks/models/deepseek-v4p1-flash',
-    'deepseek v4 pro': 'accounts/fireworks/models/deepseek-v4-pro-0813',
 }
 EFFORTS = ('none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra')
 
@@ -182,8 +176,8 @@ def run(args):
         if updates['model_reasoning_effort'] not in prepared['efforts']:
             raise ValueError('Unsupported reasoning effort for this model. Available: ' + ', '.join(prepared['efforts']))
         catalog_text = json.dumps(prepared['catalog'], indent=2) + '\n'
-        digest = hashlib.sha256(catalog_text.encode()).hexdigest()[:16]
-        catalog_path = state_dir / ('fireworks-catalog-' + digest + '.json')
+        # FireConnect publishes one catalog for every Fireworks model, so one stable file is enough.
+        catalog_path = state_dir / 'fireworks-model-catalog.json'
         updates.update(model=prepared['model'], model_catalog_json=str(catalog_path), web_search=prepared['web_search'])
     elif provider != 'openai' and provider not in providers:
         raise ValueError('Provider ' + provider + ' is not configured. Grok subscription access requires an existing compatible adapter; this helper never substitutes an xAI API key.')

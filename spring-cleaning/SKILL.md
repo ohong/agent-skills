@@ -7,6 +7,7 @@ description: Inspect Mac disk use, identify recoverable space, and carry out sco
 
 Recover useful disk space and verify the result. A list of suggestions does not
 complete an authorized cleanup request. Keep plan-only requests read-only.
+Plan-only requests still permit the read-only inspection needed for a grounded plan.
 
 ## Inspect a bounded scope
 
@@ -19,14 +20,16 @@ complete an authorized cleanup request. Keep plan-only requests read-only.
 4. Preserve permission errors, missing volumes, partial scans, and timeouts.
    An unreadable directory is unknown, not empty. Do not hide stderr.
 
-Use the stdlib helper for explicitly named targets or repositories:
+Resolve the helper from this skill's directory, not the current project directory.
+Use it for explicitly named targets or repositories:
 
 ```bash
-python3 scripts/inventory.py --path '/absolute/candidate' --repo '/absolute/repository'
+python3 '/absolute/skill-directory/scripts/inventory.py' --path '/absolute/candidate' --repo '/absolute/repository'
 ```
 
-Paths and repositories can repeat. The helper refuses symlink paths, bounds each
-command and the whole run, and emits JSON. It never deletes, fetches, or assigns
+Paths and repositories can repeat. The helper refuses symlink paths, bounds command
+runtime with a shared budget, and emits JSON. Filesystem metadata calls may block.
+It never deletes, fetches, or assigns
 a safe-to-delete verdict. Read its errors and limitations before using results.
 Directory sizes are estimates of allocated blocks; they are not promised recovery.
 Parent/child overlap, APFS clones, snapshots, and shared blocks prevent summing them.
@@ -59,6 +62,7 @@ the user's decision before deleting them. A screenshot alone authorizes inspecti
 Prefer supported app removal and package-manager cleanup over deleting internal
 folders. Generate commands only for inspected, exact targets. Use quoted paths,
 no broad globs, and no force flags that bypass a discovered protection.
+Tool-required flags for a documented, reviewed operation are not blanket force approval.
 Moving items to Trash is reversible but does not reclaim space until emptied.
 Empty only the reviewed items within the user's scope; do not clear unrelated Trash.
 
