@@ -51,6 +51,13 @@ The list excludes MiniMax, non-tool models, and the FireRouter BYOK router. Mini
 with Codex tool-message ordering. Missing or ambiguous IDs fail without changing the config.
 Do not invent model IDs or claim every serverless model supports Codex.
 
+Kimi K3 works in CLI sessions but currently fails in Codex desktop sessions. Fireworks rejects any tool schema
+that sets `type` beside `$ref`, and a desktop app tool sends that shape. The turn ends with
+`stream disconnected before completion: JSON Schema not supported: when using $ref, type should be defined in the
+referenced schema instead of the parent schema.` DeepSeek and GLM accept that shape. Verified on 2026-09-17:
+`kimi-fast-latest` failed in this desktop thread, passed in two CLI sessions, and a direct Fireworks probe reproduced
+the exact rejection. Use Kimi in the CLI, or DeepSeek/GLM in the desktop, until the app or Fireworks fixes it.
+
 The helper keeps its own TOML writer. It preserves unrelated TOML and provider credentials, retains
 command-backed authentication, and writes private backups. It never writes the API key into `config.toml`.
 It never calls `fireconnect codex off`, because restoring that full snapshot could overwrite later edits.

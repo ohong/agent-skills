@@ -203,6 +203,12 @@ def run(args):
     if tomllib.loads(after) != expected:
         raise ValueError('TOML preservation check failed; no file changed.')
     report = {'model': expected.get('model'), 'provider': provider, 'reasoning_effort': expected.get('model_reasoning_effort'), 'changed': after != before, 'dry_run': args.dry_run}
+    # Fireworks' Kimi K3 deployments reject tool schemas that set `type` beside `$ref`.
+    # Codex desktop sends that shape for an app tool, so desktop turns fail; CLI turns work.
+    if provider == 'fireworks' and updates['model'].startswith('kimi-'):
+        report['warning'] = ('Kimi K3 currently fails in Codex desktop sessions: Fireworks rejects a desktop app-tool '
+                             'schema that sets type beside $ref. CLI sessions work. Use deepseek or glm for desktop '
+                             'until the app or Fireworks fixes the schema handling.')
     if prepared:
         report.update(model_id=prepared['model_id'], catalog=str(catalog_path), catalog_source=prepared['source'])
     if args.dry_run or (after == before and (not prepared or catalog_path.exists())):

@@ -176,6 +176,15 @@ model = "gpt-real"
         report = self.run_switch('kimi')
         self.assertFalse(report['changed'])
 
+    def test_kimi_switch_warns_about_desktop_only_schema_failure(self):
+        report = self.run_switch('kimi')
+        self.assertIn('desktop', report['warning'])
+        self.assertIn('$ref', report['warning'])
+        report = self.run_switch('deepseek')
+        self.assertNotIn('warning', report)
+        report = self.run_switch('--dry-run', 'glm')
+        self.assertNotIn('warning', report)
+
     def test_family_aliases_use_the_latest_router_only(self):
         self.run_switch('kimi')
         self.assertEqual(self.data()['model'], 'kimi-latest')
