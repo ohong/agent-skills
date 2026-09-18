@@ -80,6 +80,9 @@ Fireworks promotes `xhigh` into `max`, so `max` is the only way to select the de
 fails with the supported list. A 2026-09-18 probe of `deepseek-v4p1-flash` accepted `none`, `low`, `medium`,
 `high`, `xhigh`, and `max`, and rejected `minimal`, `ultra`, and `adaptive` (`adaptive` is MiniMax M3 only).
 The helper exposes `low`/`medium`/`high`/`max` for that model, matching the curated ladder.
+The desktop effort slider shows the catalog ladder intersected with the app's `enabled-reasoning-efforts`
+setting in `config.toml`; that setting already includes `max`. The app-server loads the catalog at startup,
+so restart the app after a ladder change. Existing threads also keep the ladder they started with.
 
 `fireconnect codex on` cannot patch this machine's real `config.toml` directly: FireConnect's TOML parser
 rejects root integers above 2^53, and `[agents] max_concurrent_threads_per_session` exceeds that.
