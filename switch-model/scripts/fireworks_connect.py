@@ -176,12 +176,17 @@ def generic_catalog_entry(template, row):
     # saved in config.toml. Use Fireworks' full id because it is the canonical form.
     context = row.get('context_length') or GENERIC_CONTEXT_WINDOW
     modalities = ['text'] + (['image'] if row.get('supports_image_input') else [])
+    # The deep tier is documented for the same families FireConnect curates, and a
+    # 2026-09-18 probe confirmed Fireworks accepts `max` for deepseek-v4p1-flash.
+    levels = list(GENERIC_LEVELS)
+    if short_id(row['id']).startswith(DEEP_TIER_FAMILIES):
+        levels.append(MAX_LEVEL)
     entry = copy.deepcopy(template)
     entry.update(slug=row['id'], display_name=short_id(row['id']),
                  description='Fireworks serverless model using a generic Codex catalog entry.',
                  context_window=context, max_context_window=context, input_modalities=modalities,
                  supports_image_detail_original=bool(row.get('supports_image_input')),
-                 supported_reasoning_levels=copy.deepcopy(GENERIC_LEVELS), default_reasoning_level='high')
+                 supported_reasoning_levels=levels, default_reasoning_level='high')
     return entry
 
 
@@ -251,4 +256,4 @@ def prepare(target=None, search=None, validate=False):
         catalog.setdefault('models', []).append(entry)
         return {'model': model['id'], 'catalog': catalog, 'web_search': staged.get('web_search', 'disabled'),
                 'source': 'fireworks-generic', 'model_id': model['id'],
-                'efforts': [level['effort'] for level in GENERIC_LEVELS]}
+                'efforts': [level['effort'] for level in entry['supported_reasoning_levels']]}

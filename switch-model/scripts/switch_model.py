@@ -211,7 +211,9 @@ def run(args):
                              'until the app or Fireworks fixes the schema handling.')
     if prepared:
         report.update(model_id=prepared['model_id'], catalog=str(catalog_path), catalog_source=prepared['source'])
-    if args.dry_run or (after == before and (not prepared or catalog_path.exists())):
+    # An unchanged config must still refresh a catalog written by an older helper version.
+    catalog_current = catalog_path.exists() and read_exact(catalog_path) == catalog_text if prepared else True
+    if args.dry_run or (after == before and (not prepared or catalog_current)):
         print(json.dumps(report, indent=2))
         return
     state_dir.mkdir(parents=True, exist_ok=True, mode=0o700)

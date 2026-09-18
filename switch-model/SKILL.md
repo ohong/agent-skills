@@ -40,8 +40,9 @@ The helper edits that catalog in exactly one way: it restores the `max` reasonin
 Models present in FireConnect's catalog keep that curated metadata. Any other model from Fireworks'
 model API gets a generic catalog entry, so pinned versions such as `kimi-k3` and models FireConnect does
 not curate, such as `qwen3p8-max`, are selectable by name. Generic entries use Fireworks' canonical full
-id in both `config.toml` and the catalog, a `low`/`medium`/`high` reasoning ladder, the reported context
-length, and a conservative 65,536-token window when Fireworks reports none. Claiming a window that is
+id in both `config.toml` and the catalog, a `low`/`medium`/`high` reasoning ladder plus `max` on the
+deep-tier families, the reported context length, and a conservative 65,536-token window when Fireworks
+reports none. Claiming a window that is
 too large delays compaction until the server rejects the request, so the fallback errs small.
 The catalog can include region-only deployments such as `kimi-k3-us` and `glm-5p3-flash-us`.
 
@@ -76,7 +77,9 @@ Fireworks temporarily sets `web_search = "disabled"`, as its Responses endpoint 
 server-executed search tool. See the WebSearch MCP note below for the supported replacement.
 Non-GPT models default to `high`. Explicit efforts must be supported by the Fireworks model's metadata.
 Fireworks promotes `xhigh` into `max`, so `max` is the only way to select the deepest tier; `--effort xhigh`
-fails with the supported list.
+fails with the supported list. A 2026-09-18 probe of `deepseek-v4p1-flash` accepted `none`, `low`, `medium`,
+`high`, `xhigh`, and `max`, and rejected `minimal`, `ultra`, and `adaptive` (`adaptive` is MiniMax M3 only).
+The helper exposes `low`/`medium`/`high`/`max` for that model, matching the curated ladder.
 
 `fireconnect codex on` cannot patch this machine's real `config.toml` directly: FireConnect's TOML parser
 rejects root integers above 2^53, and `[agents] max_concurrent_threads_per_session` exceeds that.

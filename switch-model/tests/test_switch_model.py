@@ -104,6 +104,8 @@ else:
              'supports_tools': True, 'supports_image_input': False},
             {'id': 'accounts/fireworks/models/glm-5p2', 'supports_chat': True, 'supports_tools': True,
              'context_length': 1048576},
+            {'id': 'accounts/fireworks/models/deepseek-v4p1-flash', 'supports_chat': True,
+             'supports_tools': True, 'context_length': 131072},
             {'id': 'accounts/fireworks/models/plain-text-only', 'supports_chat': True, 'supports_tools': False},
         ]}))
         self.probe = ThreadingHTTPServer(('127.0.0.1', 0), ProbeHandler)
@@ -235,6 +237,32 @@ model = "gpt-real"
         report = self.run_switch('--dry-run', 'qwen3p8-max')
         self.assertEqual(report['model'], 'accounts/fireworks/models/qwen3p8-max')
 
+    def test_idempotent_switch_refreshes_a_stale_catalog(self):
+        self.run_switch('deepseek-v4p1-flash')
+        path = Path(self.data()['model_catalog_json'])
+        catalog = json.loads(path.read_text())
+        for model in catalog['models']:
+            if model['slug'].endswith('deepseek-v4p1-flash'):
+                model['supported_reasoning_levels'] = model['supported_reasoning_levels'][:3]
+        path.write_text(json.dumps(catalog, indent=2) + '\n')
+        report = self.run_switch('deepseek-v4p1-flash')
+        self.assertFalse(report['changed'])
+        catalog = json.loads(path.read_text())
+        entry = next(m for m in catalog['models'] if m['slug'].endswith('deepseek-v4p1-flash'))
+        self.assertEqual([l['effort'] for l in entry['supported_reasoning_levels']],
+                         ['low', 'medium', 'high', 'max'])
+
+    def test_deep_tier_generic_models_gain_max_effort(self):
+        self.run_switch('deepseek-v4p1-flash')
+        catalog = json.loads(Path(self.data()['model_catalog_json']).read_text())
+        entry = next(m for m in catalog['models'] if m['slug'].endswith('deepseek-v4p1-flash'))
+        self.assertEqual([l['effort'] for l in entry['supported_reasoning_levels']],
+                         ['low', 'medium', 'high', 'max'])
+        self.run_switch('--effort', 'max', 'deepseek-v4p1-flash')
+        self.assertEqual(self.data()['model_reasoning_effort'], 'max')
+        self.run_switch('--effort', 'xhigh', 'deepseek-v4p1-flash', succeeds=False)
+        self.assertEqual(self.data()['model_reasoning_effort'], 'max')
+
     def test_generic_models_keep_pinned_versions_selectable(self):
         self.run_switch('glm-5p2')
         self.assertEqual(self.data()['model'], 'accounts/fireworks/models/glm-5p2')
@@ -273,7 +301,7 @@ model = "gpt-real"
         self.assertEqual(self.data()['model'], 'deepseek-pro-latest')
         all_models = self.run_switch('--list')['models']
         self.assertEqual([row['short_id'] for row in all_models if 'deepseek' in row['short_id']],
-                         ['deepseek-flash-latest', 'deepseek-pro-latest'])
+                         ['deepseek-flash-latest', 'deepseek-pro-latest', 'deepseek-v4p1-flash'])
         self.run_switch('--effort', 'max', 'kimi')
         self.assertEqual(self.data()['model_reasoning_effort'], 'max')
         self.run_switch('--effort', 'ultra', 'kimi', succeeds=False)
