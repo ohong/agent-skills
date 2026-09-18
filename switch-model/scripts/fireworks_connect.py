@@ -1,9 +1,12 @@
-"""Use FireConnect's public CLI for model discovery and Codex catalog generation.
+"""Use FireConnect's public CLI plus Fireworks' model API for Codex switching.
 
-FireConnect owns the Fireworks model catalog. This module never reimplements it.
+FireConnect owns the curated Codex catalog. This module never reimplements it.
 It stages FireConnect's own `codex on` output in a disposable home, then returns
-the generated catalog and metadata to the caller.
+the generated catalog and metadata to the caller. Models outside that catalog
+still work: Fireworks' model API lists every callable serverless model, and this
+module gives those models a conservative generic catalog entry.
 """
+import copy
 import json
 import os
 from pathlib import Path
@@ -12,13 +15,24 @@ import shutil
 import subprocess
 import tempfile
 import tomllib
+import urllib.error
+import urllib.request
 
 from fireworks_auth import credential
 
 CATALOG_FILE = '.codex/fireworks-model-catalog.json'
 FIREWORKS_BASE = 'https://api.fireworks.ai/inference/v1'
+FIREWORKS_MODELS_URL = FIREWORKS_BASE + '/models'
+FIREWORKS_RESPONSES_URL = FIREWORKS_BASE + '/responses'
 # Any valid reference works; the generated catalog does not depend on the selection.
 STAGE_REFERENCE = 'kimi-latest'
+# Fireworks does not report a context length for every model. Claiming a window
+# that is too large delays compaction until the server rejects the request, so
+# the generic fallback stays deliberately small; compaction then happens early.
+GENERIC_CONTEXT_WINDOW = 65536
+GENERIC_LEVELS = [{'effort': 'low', 'description': 'Fast responses with lighter reasoning'},
+                  {'effort': 'medium', 'description': 'Balances speed and reasoning depth for everyday tasks'},
+                  {'effort': 'high', 'description': 'Greater reasoning depth for complex problems'}]
 # FireConnect curates reasoning tiers by hand, so families that accept the deep
 # tier often arrive with only a low/medium/high ladder. Fireworks documents the
 # deep tier for DeepSeek V4/V4.1, Kimi K3, and GLM 5.2. A live probe confirmed
@@ -98,8 +112,81 @@ def details(env, home):
     return index
 
 
-def prepare(target=None, search=None):
-    """Return the FireConnect catalog, or the list of models it exposes to Codex."""
+def short_id(model_id):
+    """Return the Fireworks short id for a router or model id."""
+    for prefix in ('accounts/fireworks/models/', 'accounts/fireworks/routers/'):
+        if model_id.startswith(prefix):
+            return model_id[len(prefix):]
+    return model_id
+
+
+def fetch_serverless_models(key):
+    """Return Fireworks' callable models from the model API, keyed by short id."""
+    url = os.environ.get('FIREWORKS_MODELS_URL') or FIREWORKS_MODELS_URL
+    request = urllib.request.Request(url, headers={'Authorization': 'Bearer ' + key})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.load(response)
+    except (OSError, ValueError) as exc:
+        raise ValueError('Could not read the Fireworks model list: ' + str(exc)) from None
+    rows = payload.get('data') or []
+    return {short_id(row['id']): row for row in rows if row.get('id')}
+
+
+def usable_serverless_model(slug, row):
+    """Codex needs chat plus function tools; MiniMax breaks tool-message ordering."""
+    return (bool(row.get('supports_chat') and row.get('supports_tools'))
+            and 'minimax' not in slug.lower() and 'firerouter' not in slug.lower())
+
+
+def validate_serverless_model(key, model_id):
+    """Run one tiny request so unusable models fail before the config changes.
+
+    Codex sends developer-role messages on the Responses API. Some Fireworks chat
+    templates reject that role, and some listed models are not deployed. A minimal
+    probe catches both failure classes without changing any files.
+    """
+    body = {'model': model_id, 'stream': False, 'max_output_tokens': 64,
+            'input': [{'role': 'developer', 'content': [{'type': 'input_text', 'text': 'Be brief.'}]},
+                      {'role': 'user', 'content': [{'type': 'input_text', 'text': 'Reply with exactly: OK'}]}]}
+    url = os.environ.get('FIREWORKS_RESPONSES_URL') or FIREWORKS_RESPONSES_URL
+    request = urllib.request.Request(url, data=json.dumps(body).encode(),
+                                     headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            json.load(response)
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = json.loads(exc.read().decode()).get('error', {}).get('message', '')
+        except (OSError, ValueError):
+            detail = ''
+        raise ValueError('Fireworks rejected ' + model_id + ' in a validation probe: '
+                         + (detail or str(exc)) + '. No file changed.') from None
+    except (OSError, ValueError) as exc:
+        raise ValueError('Could not validate ' + model_id + ': ' + str(exc)) from None
+
+
+def generic_catalog_entry(template, row):
+    """Build a conservative catalog entry for a model FireConnect does not curate.
+
+    Copy a known-good curated entry so every field Codex requires stays present,
+    then override only identity, limits, modalities, and the reasoning ladder.
+    """
+    # Codex matches catalog entries by slug, so the slug must equal the model id
+    # saved in config.toml. Use Fireworks' full id because it is the canonical form.
+    context = row.get('context_length') or GENERIC_CONTEXT_WINDOW
+    modalities = ['text'] + (['image'] if row.get('supports_image_input') else [])
+    entry = copy.deepcopy(template)
+    entry.update(slug=row['id'], display_name=short_id(row['id']),
+                 description='Fireworks serverless model using a generic Codex catalog entry.',
+                 context_window=context, max_context_window=context, input_modalities=modalities,
+                 supports_image_detail_original=bool(row.get('supports_image_input')),
+                 supported_reasoning_levels=copy.deepcopy(GENERIC_LEVELS), default_reasoning_level='high')
+    return entry
+
+
+def prepare(target=None, search=None, validate=False):
+    """Return the catalog for one switch, or every model Codex can use on Fireworks."""
     key = credential()
     if any(char.isspace() for char in key) or key.startswith('fpk_'):
         raise ValueError('Codex needs a standard Fireworks API key, not a Fire Pass key.')
@@ -110,31 +197,58 @@ def prepare(target=None, search=None):
     with tempfile.TemporaryDirectory(prefix='codex-fireconnect-') as directory:
         home = Path(directory)
         env.update(XDG_CONFIG_HOME=str(home / 'config'), XDG_DATA_HOME=str(home / 'data'))
-        catalog, staged, entries = stage(home, env, target or STAGE_REFERENCE)
+        # The generated catalog does not depend on the selected reference, so one
+        # staging run serves curated and generic models alike.
+        catalog, staged, entries = stage(home, env, STAGE_REFERENCE)
         add_deep_tier(catalog)
         info = details(env, home)
-        rows = []
+        curated = []
         for entry in entries:
             slug = entry.get('slug')
             if not slug:
                 continue
             row = info.get(slug, {})
-            rows.append({'id': row.get('id', slug), 'short_id': slug, 'name': entry.get('display_name', ''),
-                         'context_window': entry.get('context_window'), 'vision': bool(row.get('vision')),
-                         'pricing': row.get('pricing')})
-        rows.sort(key=lambda row: row['short_id'])
+            curated.append({'id': row.get('id', slug), 'short_id': slug, 'name': entry.get('display_name', ''),
+                            'context_window': entry.get('context_window'), 'vision': bool(row.get('vision')),
+                            'pricing': row.get('pricing'), 'in_codex_catalog': True})
+        curated.sort(key=lambda row: row['short_id'])
+        curated_slugs = {row['short_id'] for row in curated}
         if target is None:
+            serverless = fetch_serverless_models(key)
+            rows = list(curated)
+            for slug, model in serverless.items():
+                if slug in curated_slugs or not usable_serverless_model(slug, model):
+                    continue
+                detail = info.get(slug, {})
+                rows.append({'id': model['id'], 'short_id': slug, 'name': detail.get('displayName') or slug,
+                             'context_window': model.get('context_length') or GENERIC_CONTEXT_WINDOW,
+                             'vision': bool(model.get('supports_image_input')), 'pricing': detail.get('pricing'),
+                             'in_codex_catalog': False})
+            rows.sort(key=lambda row: row['short_id'])
             query = normalized(search or '')
-            return {'source': 'fireconnect', 'models': [row for row in rows
+            return {'source': 'fireworks', 'models': [row for row in rows
                     if query in normalized(row['short_id'] + ' ' + row['name'])]}
         if 'minimax' in target.lower():
             raise ValueError('MiniMax is currently incompatible with Codex tool-message ordering. Use another harness.')
-        slug = staged.get('model')
+        slug = short_id(target)
         selected = next((entry for entry in entries if entry.get('slug') == slug), None)
-        known = [row['short_id'] for row in rows]
-        if not slug or not selected:
-            raise ValueError('FireConnect exposes only these Codex models: ' + ', '.join(known)
-                             + '. Use --list to see them.')
-        return {'model': slug, 'catalog': catalog, 'web_search': staged.get('web_search', 'disabled'),
-                'source': 'fireconnect', 'model_id': next((row['id'] for row in rows if row['short_id'] == slug), slug),
-                'efforts': [level['effort'] for level in selected.get('supported_reasoning_levels', [])]}
+        if selected is not None:
+            return {'model': slug, 'catalog': catalog, 'web_search': staged.get('web_search', 'disabled'),
+                    'source': 'fireconnect',
+                    'model_id': next((row['id'] for row in curated if row['short_id'] == slug), slug),
+                    'efforts': [level['effort'] for level in selected.get('supported_reasoning_levels', [])]}
+        model = fetch_serverless_models(key).get(slug)
+        if model is None:
+            raise ValueError('Fireworks does not expose a serverless model named ' + target
+                             + '. Run --list to see compatible models.')
+        if not usable_serverless_model(slug, model):
+            raise ValueError(slug + ' does not support chat with function tools, which Codex requires.')
+        if validate:
+            validate_serverless_model(key, model['id'])
+        # Reuse a known-good curated entry so every required catalog field exists.
+        template = next((entry for entry in entries if entry.get('slug') == 'deepseek-flash-latest'), entries[0])
+        entry = generic_catalog_entry(template, model)
+        catalog.setdefault('models', []).append(entry)
+        return {'model': model['id'], 'catalog': catalog, 'web_search': staged.get('web_search', 'disabled'),
+                'source': 'fireworks-generic', 'model_id': model['id'],
+                'efforts': [level['effort'] for level in GENERIC_LEVELS]}

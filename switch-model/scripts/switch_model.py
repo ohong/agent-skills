@@ -172,7 +172,7 @@ def run(args):
             add_provider = fireworks_definition()
         elif existing.get('base_url', '').rstrip('/') != FIREWORKS_BASE or existing.get('wire_api') != 'responses':
             raise ValueError('Existing fireworks provider uses another endpoint or protocol. Resolve that conflict before switching.')
-        prepared = prepare_fireworks(updates['model'])
+        prepared = prepare_fireworks(updates['model'], validate=not args.dry_run)
         if updates['model_reasoning_effort'] not in prepared['efforts']:
             raise ValueError('Unsupported reasoning effort for this model. Available: ' + ', '.join(prepared['efforts']))
         catalog_text = json.dumps(prepared['catalog'], indent=2) + '\n'
@@ -205,7 +205,7 @@ def run(args):
     report = {'model': expected.get('model'), 'provider': provider, 'reasoning_effort': expected.get('model_reasoning_effort'), 'changed': after != before, 'dry_run': args.dry_run}
     # Fireworks' Kimi K3 deployments reject tool schemas that set `type` beside `$ref`.
     # Codex desktop sends that shape for an app tool, so desktop turns fail; CLI turns work.
-    if provider == 'fireworks' and updates['model'].startswith('kimi-'):
+    if provider == 'fireworks' and any(part.startswith('kimi-') for part in updates['model'].split('/')):
         report['warning'] = ('Kimi K3 currently fails in Codex desktop sessions: Fireworks rejects a desktop app-tool '
                              'schema that sets type beside $ref. CLI sessions work. Use deepseek or glm for desktop '
                              'until the app or Fireworks fixes the schema handling.')
@@ -244,7 +244,7 @@ def main():
     parser.add_argument('--state-dir', type=Path, help='Override private state/backup directory.')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--status', action='store_true')
-    parser.add_argument('--list', action='store_true', help='List compatible Fireworks serverless models from FireConnect.')
+    parser.add_argument('--list', action='store_true', help='List every Fireworks serverless model Codex can use.')
     parser.add_argument('--search', help='Filter --list by model name or ID.')
     args = parser.parse_args()
     try:

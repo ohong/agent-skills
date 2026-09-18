@@ -1,9 +1,11 @@
 import json
 import os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import threading
 import tomllib
 import unittest
 
@@ -31,6 +33,23 @@ refresh_interval_ms = 300000
 command = "tool"
 args = ["--option"]
 '''
+
+
+class ProbeHandler(BaseHTTPRequestHandler):
+    """Fake Fireworks Responses endpoint used to test generic-model validation."""
+
+    def do_POST(self):
+        failure = self.server.failure
+        status = 400 if failure else 200
+        body = json.dumps({'error': {'message': failure}} if failure else {}).encode()
+        self.send_response(status)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *_args):
+        pass
 
 
 class SwitchingTests(unittest.TestCase):
@@ -77,8 +96,24 @@ else:
     (home / '.codex/fireworks-model-catalog.json').write_text(json.dumps(catalog))
 """)
         fixture.chmod(0o700)
+        models = self.root / 'fireworks-models.json'
+        models.write_text(json.dumps({'data': [
+            {'id': 'accounts/fireworks/models/qwen3p8-max', 'supports_chat': True, 'supports_tools': True,
+             'supports_image_input': True, 'context_length': 262144},
+            {'id': 'accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b', 'supports_chat': True,
+             'supports_tools': True, 'supports_image_input': False},
+            {'id': 'accounts/fireworks/models/glm-5p2', 'supports_chat': True, 'supports_tools': True,
+             'context_length': 1048576},
+            {'id': 'accounts/fireworks/models/plain-text-only', 'supports_chat': True, 'supports_tools': False},
+        ]}))
+        self.probe = ThreadingHTTPServer(('127.0.0.1', 0), ProbeHandler)
+        self.probe.failure = None
+        threading.Thread(target=self.probe.serve_forever, kwargs={'poll_interval': 0.01}, daemon=True).start()
+        self.addCleanup(self.probe.shutdown)
+        self.addCleanup(self.probe.server_close)
         self.env = os.environ | {'FIREWORKS_API_KEY': 'test-only-never-sent', 'CODEX_HOME': str(self.root),
-                                 'FIRECONNECT_BIN': str(fixture)}
+                                 'FIRECONNECT_BIN': str(fixture), 'FIREWORKS_MODELS_URL': models.as_uri(),
+                                 'FIREWORKS_RESPONSES_URL': 'http://127.0.0.1:%d/responses' % self.probe.server_address[1]}
 
 
     def run_switch(self, *args, succeeds=True):
@@ -175,6 +210,48 @@ model = "gpt-real"
         self.run_switch('kimi')
         report = self.run_switch('kimi')
         self.assertFalse(report['changed'])
+
+    def test_any_serverless_model_switches_with_generic_catalog_entry(self):
+        report = self.run_switch('qwen3p8-max')
+        full = 'accounts/fireworks/models/qwen3p8-max'
+        self.assertEqual(self.data()['model'], full)
+        self.assertEqual(report['catalog_source'], 'fireworks-generic')
+        catalog = json.loads(Path(self.data()['model_catalog_json']).read_text())
+        entry = next(m for m in catalog['models'] if m['slug'] == full)
+        self.assertEqual(entry['context_window'], 262144)
+        self.assertEqual(entry['input_modalities'], ['text', 'image'])
+        self.assertEqual([l['effort'] for l in entry['supported_reasoning_levels']], ['low', 'medium', 'high'])
+        self.run_switch('accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b')
+        catalog = json.loads(Path(self.data()['model_catalog_json']).read_text())
+        entry = next(m for m in catalog['models'] if m['slug'].endswith('nemotron-lightning-3p5-30b-a3b'))
+        self.assertEqual(entry['context_window'], 65536)
+        self.assertEqual(entry['input_modalities'], ['text'])
+
+    def test_validation_probe_rejects_broken_generic_models(self):
+        self.probe.failure = 'jinja template rendering failed. Unexpected message role.'
+        self.run_switch('qwen3p8-max', succeeds=False)
+        self.assertEqual(self.config.read_text(), ORIGINAL)
+        self.probe.failure = None
+        report = self.run_switch('--dry-run', 'qwen3p8-max')
+        self.assertEqual(report['model'], 'accounts/fireworks/models/qwen3p8-max')
+
+    def test_generic_models_keep_pinned_versions_selectable(self):
+        self.run_switch('glm-5p2')
+        self.assertEqual(self.data()['model'], 'accounts/fireworks/models/glm-5p2')
+
+    def test_unsupported_or_unknown_models_fail_without_writes(self):
+        for target in ('plain-text-only', 'not-a-fireworks-model'):
+            self.run_switch(target, succeeds=False)
+        self.assertEqual(self.config.read_text(), ORIGINAL)
+
+    def test_list_marks_curated_and_generic_serverless_models(self):
+        rows = self.run_switch('--list')['models']
+        by_id = {row['short_id']: row for row in rows}
+        self.assertTrue(by_id['kimi-latest']['in_codex_catalog'])
+        self.assertFalse(by_id['qwen3p8-max']['in_codex_catalog'])
+        self.assertNotIn('plain-text-only', by_id)
+        found = self.run_switch('--list', '--search', 'qwen')['models']
+        self.assertEqual([row['short_id'] for row in found], ['qwen3p8-max'])
 
     def test_kimi_switch_warns_about_desktop_only_schema_failure(self):
         report = self.run_switch('kimi')
